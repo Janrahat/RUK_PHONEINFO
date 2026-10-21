@@ -1,0 +1,2658 @@
+"""Bundled OFFLINE datasets: numbering plans, area codes and carrier prefixes.
+
+Everything in this module is static, public numbering-plan information that
+ships with the tool.  No network access is performed and no personal data is
+stored.  The datasets are intentionally conservative: when a fact is not
+known with confidence it is omitted rather than guessed, and every lookup
+function reports ``None`` instead of inventing a value.
+
+Sources of the public data: ITU-T E.164 country calling code assignments and
+publicly published national numbering plans.
+"""
+
+from __future__ import annotations
+
+# ---------------------------------------------------------------------------
+# Country numbering plans
+# ---------------------------------------------------------------------------
+# Fields per country:
+#   name / name_ur  : English and Urdu display names
+#   code            : E.164 country calling code (digits, no '+')
+#   nsn             : valid National Significant Number lengths
+#   trunk           : national trunk prefix (usually "0")
+#   intl            : international dialling prefix (usually "00")
+#   region          : broad geographic region
+#   tz              : IANA time zone identifiers
+#   flag            : emoji flag
+#   mobile / fixed / voip / tollfree / premium
+#                   : NSN prefixes that identify the line category
+#   area            : NSN prefix -> area / region name (fixed lines)
+#   note            : optional caveat shown to the user
+
+COUNTRIES: dict[str, dict] = {
+    # ---------------------------- South Asia ----------------------------
+    "PK": {
+        "name": "Pakistan", "name_ur": "\u067e\u0627\u06a9\u0633\u062a\u0627\u0646", "code": "92",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Karachi"], "flag": "\U0001f1f5\U0001f1f0",
+        "mobile": ["30", "31", "32", "33", "34", "35"],
+        "fixed": ["21", "22", "41", "42", "44", "48", "51", "52", "53", "55",
+                  "61", "62", "71", "81", "82", "83", "84", "85", "86", "87",
+                  "91", "92", "93", "94", "95"],
+        "voip": ["39"],
+        "tollfree": ["800"],
+        "premium": ["900"],
+        "area": {
+            "21": "Karachi", "22": "Hyderabad", "41": "Faisalabad",
+            "42": "Lahore", "44": "Sahiwal", "48": "Sargodha",
+            "51": "Islamabad / Rawalpindi", "52": "Sialkot",
+            "53": "Rawalpindi", "55": "Gujranwala", "61": "Multan",
+            "62": "Bahawalpur", "71": "Sukkur", "81": "Quetta",
+            "82": "Sibi", "83": "Zhob", "84": "Kalat", "85": "Nasirabad",
+            "86": "Makran", "87": "Loralai", "91": "Peshawar",
+            "92": "Kohat", "93": "Mardan", "94": "Swat",
+            "95": "Abbottabad / Hazara",
+        },
+    },
+    "IN": {
+        "name": "India", "name_ur": "\u0628\u06be\u0627\u0631\u062a", "code": "91",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Kolkata"], "flag": "\U0001f1ee\U0001f1f3",
+        "mobile": ["6", "7", "8", "9"],
+        "fixed": ["11", "22", "33", "44", "40", "80", "20", "79", "141",
+                  "172", "522", "712", "755", "471", "484", "361", "674",
+                  "651", "512", "542", "183", "161", "291", "731", "751",
+                  "821", "836", "866", "891", "863", "422", "431", "452"],
+        "voip": ["79"],
+        "tollfree": ["1800", "1860"],
+        "premium": ["1900"],
+        "area": {
+            "11": "Delhi", "22": "Mumbai", "33": "Kolkata", "44": "Chennai",
+            "40": "Hyderabad", "80": "Bengaluru", "20": "Pune",
+            "79": "Ahmedabad", "141": "Jaipur", "172": "Chandigarh",
+            "522": "Lucknow", "712": "Nagpur", "755": "Bhopal",
+            "471": "Thiruvananthapuram", "484": "Kochi", "361": "Guwahati",
+            "674": "Bhubaneswar", "651": "Ranchi", "512": "Kanpur",
+            "542": "Varanasi", "183": "Amritsar", "161": "Ludhiana",
+            "291": "Jodhpur", "731": "Indore", "751": "Gwalior",
+            "821": "Mysuru", "836": "Hubballi", "866": "Vijayawada",
+            "891": "Visakhapatnam", "863": "Guntur", "422": "Coimbatore",
+            "431": "Tiruchirappalli", "452": "Madurai",
+        },
+    },
+    "BD": {
+        "name": "Bangladesh", "name_ur": "\u0628\u0646\u06af\u0644\u06c1 \u062f\u06cc\u0634", "code": "880",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Dhaka"], "flag": "\U0001f1e7\U0001f1e9",
+        "mobile": ["13", "14", "15", "16", "17", "18", "19"],
+        "fixed": ["2", "3", "4", "5", "6", "7", "8", "9"],
+        "voip": ["96"],
+        "tollfree": ["800"],
+        "premium": ["900"],
+        "area": {
+            "2": "Dhaka / Chattogram (zone 2)", "31": "Chattogram",
+            "41": "Khulna", "51": "Rajshahi", "71": "Sylhet",
+            "81": "Barishal", "91": "Rangpur", "21": "Dhaka",
+        },
+    },
+    "AF": {
+        "name": "Afghanistan", "name_ur": "\u0627\u0641\u063a\u0627\u0646\u0633\u062a\u0627\u0646", "code": "93",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Kabul"], "flag": "\U0001f1e6\U0001f1eb",
+        "mobile": ["70", "71", "72", "73", "74", "75", "76", "77", "78", "79"],
+        "fixed": ["20", "21", "22", "23", "24", "25", "26", "27", "28", "29"],
+        "area": {"20": "Kabul", "21": "Kabul", "40": "Herat", "50": "Kandahar"},
+    },
+    "LK": {
+        "name": "Sri Lanka", "name_ur": "\u0633\u0631\u06cc \u0644\u0646\u06a9\u0627", "code": "94",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Colombo"], "flag": "\U0001f1f1\U0001f1f0",
+        "mobile": ["70", "71", "72", "74", "75", "76", "77", "78"],
+        "fixed": ["11", "21", "23", "24", "25", "26", "27", "31", "32",
+                  "33", "34", "35", "36", "37", "38", "41", "45", "47",
+                  "51", "52", "54", "55", "57", "63", "65", "66", "67",
+                  "81", "84", "86", "87", "91"],
+        "area": {"11": "Colombo", "81": "Kandy", "91": "Galle",
+                 "21": "Jaffna", "31": "Negombo"},
+    },
+    "NP": {
+        "name": "Nepal", "name_ur": "\u0646\u06cc\u067e\u0627\u0644", "code": "977",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Kathmandu"], "flag": "\U0001f1f3\U0001f1f5",
+        "mobile": ["98", "97"],
+        "fixed": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        "area": {"1": "Kathmandu", "21": "Biratnagar", "61": "Pokhara"},
+    },
+    "MV": {
+        "name": "Maldives", "name_ur": "\u0645\u0627\u0644\u062f\u06cc\u067e", "code": "960",
+        "nsn": [7], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Indian/Maldives"], "flag": "\U0001f1f2\U0001f1fb",
+        "mobile": ["7", "9"], "fixed": ["3", "4", "6"],
+    },
+    "BT": {
+        "name": "Bhutan", "name_ur": "\u0628\u06be\u0648\u0679\u0627\u0646", "code": "975",
+        "nsn": [8], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Thimphu"], "flag": "\U0001f1e7\U0001f1f9",
+        "mobile": ["17", "77"], "fixed": ["2", "3", "4", "5", "6", "7", "8"],
+    },
+
+    # ---------------------------- Middle East ---------------------------
+    "AE": {
+        "name": "United Arab Emirates", "name_ur": "\u0645\u062a\u062d\u062f\u06c1 \u0639\u0631\u0628 \u0627\u0645\u0627\u0631\u0627\u062a",
+        "code": "971", "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Dubai"], "flag": "\U0001f1e6\U0001f1ea",
+        "mobile": ["50", "52", "54", "55", "56", "58"],
+        "fixed": ["2", "3", "4", "6", "7", "9"],
+        "voip": ["60"],
+        "tollfree": ["800"],
+        "premium": ["900"],
+        "area": {"2": "Abu Dhabi", "3": "Al Ain", "4": "Dubai",
+                 "6": "Sharjah / Ajman / Umm Al Quwain",
+                 "7": "Ras Al Khaimah", "9": "Fujairah"},
+    },
+    "SA": {
+        "name": "Saudi Arabia", "name_ur": "\u0633\u0639\u0648\u062f\u06cc \u0639\u0631\u0628", "code": "966",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Riyadh"], "flag": "\U0001f1f8\U0001f1e6",
+        "mobile": ["50", "53", "54", "55", "56", "57", "58", "59"],
+        "fixed": ["11", "12", "13", "14", "15", "16", "17"],
+        "voip": ["51"],
+        "tollfree": ["800"],
+        "premium": ["700", "920"],
+        "area": {"11": "Riyadh", "12": "Makkah", "13": "Dammam / Eastern",
+                 "14": "Madinah", "16": "Qassim", "17": "Jazan / Asir"},
+    },
+    "QA": {
+        "name": "Qatar", "name_ur": "\u0642\u0637\u0631", "code": "974",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Qatar"], "flag": "\U0001f1f6\U0001f1e6",
+        "mobile": ["3", "5", "6", "7"], "fixed": ["4"],
+        "tollfree": ["800"],
+    },
+    "KW": {
+        "name": "Kuwait", "name_ur": "\u06a9\u0648\u06cc\u062a", "code": "965",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Kuwait"], "flag": "\U0001f1f0\U0001f1fc",
+        "mobile": ["5", "6", "9"], "fixed": ["2"],
+        "tollfree": ["800"],
+    },
+    "BH": {
+        "name": "Bahrain", "name_ur": "\u0628\u062d\u0631\u06cc\u0646", "code": "973",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Bahrain"], "flag": "\U0001f1e7\U0001f1ed",
+        "mobile": ["3", "6"], "fixed": ["1", "7"],
+        "tollfree": ["800"],
+    },
+    "OM": {
+        "name": "Oman", "name_ur": "\u0639\u0645\u0627\u0646", "code": "968",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Muscat"], "flag": "\U0001f1f4\U0001f1f2",
+        "mobile": ["7", "9"], "fixed": ["2"],
+        "tollfree": ["800"],
+    },
+    "JO": {
+        "name": "Jordan", "name_ur": "\u0627\u0631\u062f\u0646", "code": "962",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Amman"], "flag": "\U0001f1ef\U0001f1f4",
+        "mobile": ["77", "78", "79"],
+        "fixed": ["2", "3", "5", "6"],
+        "area": {"2": "Amman / Zarqa", "3": "Irbid / North",
+                 "5": "Karak / South", "6": "Aqaba"},
+    },
+    "LB": {
+        "name": "Lebanon", "name_ur": "\u0644\u0628\u0646\u0627\u0646", "code": "961",
+        "nsn": [7, 8], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Beirut"], "flag": "\U0001f1f1\U0001f1e7",
+        "mobile": ["3", "70", "71", "76", "78", "79", "81"],
+        "fixed": ["1", "4", "5", "6", "7", "8", "9"],
+        "area": {"1": "Beirut", "4": "Mount Lebanon", "6": "North",
+                 "7": "South", "8": "Bekaa"},
+    },
+    "SY": {
+        "name": "Syria", "name_ur": "\u0634\u0627\u0645", "code": "963",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Damascus"], "flag": "\U0001f1f8\U0001f1fe",
+        "mobile": ["9"], "fixed": ["1", "2", "3", "4", "5"],
+        "area": {"11": "Damascus", "21": "Aleppo", "31": "Homs",
+                 "41": "Hama", "51": "Latakia"},
+    },
+    "IQ": {
+        "name": "Iraq", "name_ur": "\u0639\u0631\u0627\u0642", "code": "964",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Baghdad"], "flag": "\U0001f1ee\U0001f1f6",
+        "mobile": ["73", "74", "75", "76", "77", "78", "79"],
+        "fixed": ["1", "2", "3", "4", "5", "6"],
+        "area": {"1": "Baghdad", "30": "Karbala", "40": "Mosul",
+                 "50": "Basra", "60": "Erbil"},
+    },
+    "YE": {
+        "name": "Yemen", "name_ur": "\u06cc\u0645\u0646", "code": "967",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Aden"], "flag": "\U0001f1fe\U0001f1ea",
+        "mobile": ["71", "73", "77", "78"],
+        "fixed": ["1", "2", "3", "4", "5", "6", "7"],
+        "area": {"1": "Sana'a", "2": "Aden", "3": "Hodeidah",
+                 "4": "Taiz", "5": "Hadramawt"},
+    },
+    "PS": {
+        "name": "Palestine", "name_ur": "\u0641\u0644\u0633\u0637\u06cc\u0646", "code": "970",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Hebron"], "flag": "\U0001f1f5\U0001f1f8",
+        "mobile": ["56", "59"], "fixed": ["2", "4", "8", "9"],
+        "area": {"2": "West Bank", "8": "Gaza"},
+    },
+    "IL": {
+        "name": "Israel", "name_ur": "\u0627\u0633\u0631\u0627\u0626\u06cc\u0644", "code": "972",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Jerusalem"], "flag": "\U0001f1ee\U0001f1f1",
+        "mobile": ["5"], "fixed": ["2", "3", "4", "8", "9"],
+        "voip": ["7"],
+        "tollfree": ["1800"],
+        "area": {"2": "Jerusalem", "3": "Tel Aviv", "4": "Haifa",
+                 "8": "South", "9": "Sharon"},
+    },
+    "TR": {
+        "name": "Turkey", "name_ur": "\u062a\u0631\u06a9\u06cc", "code": "90",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Europe/Istanbul"], "flag": "\U0001f1f9\U0001f1f7",
+        "mobile": ["50", "53", "54", "55"],
+        "fixed": ["212", "216", "312", "232", "224", "322", "342", "362",
+                  "222", "258", "256", "324", "332", "352", "370", "374",
+                  "378", "380", "382", "386", "388", "412", "414", "416",
+                  "422", "424", "426", "428", "432", "434", "436", "438",
+                  "442", "446", "452", "454", "456", "458", "462", "464",
+                  "466", "472", "474", "476", "478", "482", "484", "486",
+                  "488"],
+        "tollfree": ["800"],
+        "area": {"212": "Istanbul (Europe)", "216": "Istanbul (Asia)",
+                 "312": "Ankara", "232": "Izmir", "224": "Bursa",
+                 "322": "Adana", "342": "Gaziantep", "362": "Samsun"},
+    },
+    "IR": {
+        "name": "Iran", "name_ur": "\u0627\u06cc\u0631\u0627\u0646", "code": "98",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Southern Asia", "tz": ["Asia/Tehran"], "flag": "\U0001f1ee\U0001f1f7",
+        "mobile": ["91", "90", "93", "99", "92", "94"],
+        "fixed": ["21", "26", "31", "41", "51", "61", "71", "81", "86"],
+        "area": {"21": "Tehran", "26": "Karaj", "31": "Isfahan",
+                 "41": "Tabriz", "51": "Mashhad", "61": "Ahvaz",
+                 "71": "Shiraz", "81": "Kermanshah"},
+    },
+
+    # ---------------------------- Europe --------------------------------
+    "GB": {
+        "name": "United Kingdom", "name_ur": "\u0628\u0631\u0637\u0627\u0646\u06cc\u06c1", "code": "44",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Northern Europe", "tz": ["Europe/London"], "flag": "\U0001f1ec\U0001f1e7",
+        "mobile": ["71", "72", "73", "74", "75", "76", "77", "78", "79"],
+        "fixed": ["11", "12", "13", "14", "15", "16", "17", "18", "19", "20"],
+        "voip": ["56"],
+        "tollfree": ["800", "808"],
+        "premium": ["9"],
+        "area": {"20": "London", "11": "Birmingham", "12": "Bournemouth",
+                 "13": "Edinburgh", "14": "Glasgow", "15": "Liverpool",
+                 "16": "Manchester", "17": "Leeds", "18": "Reading",
+                 "19": "Newcastle"},
+    },
+    "DE": {
+        "name": "Germany", "name_ur": "\u062c\u0631\u0645\u0646\u06cc", "code": "49",
+        "nsn": [10, 11], "trunk": "0", "intl": "00",
+        "region": "Western Europe", "tz": ["Europe/Berlin"], "flag": "\U0001f1e9\U0001f1ea",
+        "mobile": ["15", "16", "17"],
+        "fixed": ["2", "3", "4", "5", "6", "7", "8", "9"],
+        "voip": ["32"],
+        "tollfree": ["800"],
+        "premium": ["900"],
+        "area": {"30": "Berlin", "40": "Hamburg", "89": "Munich",
+                 "69": "Frankfurt", "221": "Cologne", "211": "D\u00fcsseldorf",
+                 "711": "Stuttgart", "351": "Dresden", "511": "Hanover"},
+    },
+    "FR": {
+        "name": "France", "name_ur": "\u0641\u0631\u0627\u0646\u0633", "code": "33",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Europe", "tz": ["Europe/Paris"], "flag": "\U0001f1eb\U0001f1f7",
+        "mobile": ["6", "7"],
+        "fixed": ["1", "2", "3", "4", "5", "9"],
+        "voip": ["9"],
+        "tollfree": ["800"],
+        "premium": ["89"],
+        "area": {"1": "\u00cele-de-France (Paris)", "2": "North-West",
+                 "3": "North-East", "4": "South-East", "5": "South-West"},
+    },
+    "ES": {
+        "name": "Spain", "name_ur": "\u0627\u0633\u067e\u06cc\u0646", "code": "34",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Southern Europe", "tz": ["Europe/Madrid"], "flag": "\U0001f1ea\U0001f1f8",
+        "mobile": ["6", "7"], "fixed": ["8", "9"],
+        "tollfree": ["800", "900"],
+        "premium": ["803", "806", "807"],
+        "area": {"91": "Madrid", "93": "Barcelona", "96": "Valencia",
+                 "95": "Seville", "94": "Bilbao"},
+    },
+    "IT": {
+        "name": "Italy", "name_ur": "\u0627\u0637\u0627\u0644\u06cc\u06c1", "code": "39",
+        "nsn": [9, 10, 11], "trunk": "", "intl": "00",
+        "region": "Southern Europe", "tz": ["Europe/Rome"], "flag": "\U0001f1ee\U0001f1f9",
+        "mobile": ["3"], "fixed": ["0", "1", "2", "4", "5", "6", "7", "8", "9"],
+        "tollfree": ["800"],
+        "premium": ["892", "899"],
+        "area": {"06": "Rome", "02": "Milan", "011": "Turin",
+                 "081": "Naples", "055": "Florence", "041": "Venice"},
+    },
+    "NL": {
+        "name": "Netherlands", "name_ur": "\u0646\u06cc\u062f\u0631\u0644\u06cc\u0646\u0688\u0632", "code": "31",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Europe", "tz": ["Europe/Amsterdam"], "flag": "\U0001f1f3\U0001f1f1",
+        "mobile": ["6"], "fixed": ["1", "2", "3", "4", "5", "7", "8"],
+        "voip": ["85"],
+        "tollfree": ["800", "900"],
+        "area": {"20": "Amsterdam", "10": "Rotterdam", "70": "The Hague",
+                 "30": "Utrecht", "40": "Eindhoven"},
+    },
+    "BE": {
+        "name": "Belgium", "name_ur": "\u0628\u06cc\u0644\u062c\u06cc\u0645", "code": "32",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Europe", "tz": ["Europe/Brussels"], "flag": "\U0001f1e7\U0001f1ea",
+        "mobile": ["4"], "fixed": ["1", "2", "3", "5", "6", "7", "8", "9"],
+        "tollfree": ["800"],
+        "area": {"2": "Brussels", "3": "Antwerp", "4": "Li\u00e8ge",
+                 "9": "Ghent"},
+    },
+    "CH": {
+        "name": "Switzerland", "name_ur": "\u0633\u0648\u0626\u0679\u0632\u0631\u0644\u06cc\u0646\u0688", "code": "41",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Europe", "tz": ["Europe/Zurich"], "flag": "\U0001f1e8\U0001f1ed",
+        "mobile": ["7"], "fixed": ["2", "3", "4", "5", "6", "8", "9"],
+        "tollfree": ["800"],
+        "area": {"44": "Zurich", "31": "Bern", "22": "Geneva",
+                 "61": "Basel", "21": "Lausanne"},
+    },
+    "AT": {
+        "name": "Austria", "name_ur": "\u0622\u0633\u0679\u0631\u06cc\u0627", "code": "43",
+        "nsn": [10, 11, 12, 13], "trunk": "0", "intl": "00",
+        "region": "Western Europe", "tz": ["Europe/Vienna"], "flag": "\U0001f1e6\U0001f1f9",
+        "mobile": ["6"], "fixed": ["1", "2", "3", "4", "5", "7"],
+        "tollfree": ["800"],
+        "area": {"1": "Vienna", "316": "Graz", "512": "Innsbruck",
+                 "662": "Salzburg", "732": "Linz"},
+    },
+    "SE": {
+        "name": "Sweden", "name_ur": "\u0633\u0648\u06cc\u0688\u0646", "code": "46",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Northern Europe", "tz": ["Europe/Stockholm"], "flag": "\U0001f1f8\U0001f1ea",
+        "mobile": ["7"], "fixed": ["1", "2", "3", "4", "5", "6", "8", "9"],
+        "tollfree": ["20"],
+        "area": {"8": "Stockholm", "31": "Gothenburg", "40": "Malm\u00f6"},
+    },
+    "NO": {
+        "name": "Norway", "name_ur": "\u0646\u0627\u0631\u0648\u06d2", "code": "47",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Northern Europe", "tz": ["Europe/Oslo"], "flag": "\U0001f1f3\U0001f1f4",
+        "mobile": ["4", "9"], "fixed": ["2", "3", "5", "6", "7"],
+        "tollfree": ["800"],
+    },
+    "DK": {
+        "name": "Denmark", "name_ur": "\u0688\u0646\u0645\u0627\u0631\u06a9", "code": "45",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Northern Europe", "tz": ["Europe/Copenhagen"], "flag": "\U0001f1e9\U0001f1f0",
+        "mobile": ["2", "3", "4", "5", "6", "7", "8", "9"],
+        "tollfree": ["80"],
+    },
+    "FI": {
+        "name": "Finland", "name_ur": "\u0641\u0646 \u0644\u06cc\u0646\u0688", "code": "358",
+        "nsn": [9, 10], "trunk": "0", "intl": "00",
+        "region": "Northern Europe", "tz": ["Europe/Helsinki"], "flag": "\U0001f1eb\U0001f1ee",
+        "mobile": ["4", "5"], "fixed": ["2", "3", "6", "8", "9"],
+        "area": {"9": "Helsinki", "3": "Tampere", "2": "Turku"},
+    },
+    "IE": {
+        "name": "Ireland", "name_ur": "\u0622\u0626\u0631\u0644\u06cc\u0646\u0688", "code": "353",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Northern Europe", "tz": ["Europe/Dublin"], "flag": "\U0001f1ee\U0001f1ea",
+        "mobile": ["8"], "fixed": ["1", "2", "4", "5", "6", "7", "9"],
+        "tollfree": ["1800"],
+        "area": {"1": "Dublin", "21": "Cork", "91": "Galway",
+                 "61": "Limerick"},
+    },
+    "PT": {
+        "name": "Portugal", "name_ur": "\u067e\u0631\u062a\u06af\u0627\u0644", "code": "351",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Southern Europe", "tz": ["Europe/Lisbon"], "flag": "\U0001f1f5\U0001f1f9",
+        "mobile": ["9"], "fixed": ["2"],
+        "tollfree": ["800"],
+        "area": {"21": "Lisbon", "22": "Porto", "239": "Coimbra"},
+    },
+    "PL": {
+        "name": "Poland", "name_ur": "\u067e\u0648\u0644\u06cc\u0646\u0688", "code": "48",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Eastern Europe", "tz": ["Europe/Warsaw"], "flag": "\U0001f1f5\U0001f1f1",
+        "mobile": ["45", "50", "51", "53", "57", "60", "66", "69", "72",
+                   "73", "78", "79", "88"],
+        "fixed": ["12", "13", "14", "15", "16", "17", "18", "22", "23",
+                  "24", "25", "29", "32", "33", "34", "41", "42", "43",
+                  "44", "46", "48", "52", "54", "55", "56", "58", "59",
+                  "61", "62", "63", "65", "67", "68", "71", "74", "75",
+                  "76", "77", "81", "82", "83", "84", "85", "86", "87",
+                  "89", "91", "94", "95"],
+        "tollfree": ["800"],
+        "area": {"22": "Warsaw", "12": "Krak\u00f3w", "61": "Pozna\u0144",
+                 "71": "Wroc\u0142aw", "42": "\u0141\u00f3d\u017a"},
+    },
+    "RO": {
+        "name": "Romania", "name_ur": "\u0631\u0648\u0645\u0627\u0646\u06cc\u06c1", "code": "40",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Europe", "tz": ["Europe/Bucharest"], "flag": "\U0001f1f7\U0001f1f4",
+        "mobile": ["7"], "fixed": ["2", "3"],
+        "tollfree": ["800"],
+        "area": {"21": "Bucharest", "264": "Cluj-Napoca", "256": "Timi\u0219oara"},
+    },
+    "GR": {
+        "name": "Greece", "name_ur": "\u06cc\u0648\u0646\u0627\u0646", "code": "30",
+        "nsn": [10], "trunk": "", "intl": "00",
+        "region": "Southern Europe", "tz": ["Europe/Athens"], "flag": "\U0001f1ec\U0001f1f7",
+        "mobile": ["69"], "fixed": ["2"],
+        "tollfree": ["800"],
+        "area": {"21": "Athens", "231": "Thessaloniki", "261": "Patras"},
+    },
+    "RU": {
+        "name": "Russia", "name_ur": "\u0631\u0648\u0633", "code": "7",
+        "nsn": [10], "trunk": "8", "intl": "810",
+        "region": "Eastern Europe", "tz": ["Europe/Moscow"], "flag": "\U0001f1f7\U0001f1fa",
+        "mobile": ["9"], "fixed": ["3", "4", "8"],
+        "tollfree": ["800"],
+        "area": {"495": "Moscow", "812": "Saint Petersburg",
+                 "383": "Novosibirsk", "343": "Yekaterinburg"},
+    },
+    "UA": {
+        "name": "Ukraine", "name_ur": "\u06cc\u0648\u06a9\u0631\u06cc\u0646", "code": "380",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Europe", "tz": ["Europe/Kyiv"], "flag": "\U0001f1fa\U0001f1e6",
+        "mobile": ["39", "50", "63", "66", "67", "68", "73", "75", "77",
+                   "89", "91", "92", "93", "94", "95", "96", "97", "98", "99"],
+        "fixed": ["44", "48", "32", "56", "57", "61", "62", "64", "65",
+                  "69", "3", "4", "5"],
+        "tollfree": ["800"],
+        "area": {"44": "Kyiv", "48": "Odesa", "32": "Lviv",
+                 "56": "Dnipro", "57": "Kharkiv"},
+    },
+    "CZ": {
+        "name": "Czechia", "name_ur": "\u0686\u06cc\u06a9\u06cc\u0627", "code": "420",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Eastern Europe", "tz": ["Europe/Prague"], "flag": "\U0001f1e8\U0001f1ff",
+        "mobile": ["6", "7"], "fixed": ["2", "3", "4", "5"],
+        "tollfree": ["800"],
+        "area": {"2": "Prague", "5": "Brno", "69": "Ostrava"},
+    },
+    "HU": {
+        "name": "Hungary", "name_ur": "\u06c1\u0646\u06af\u0631\u06cc", "code": "36",
+        "nsn": [9], "trunk": "06", "intl": "00",
+        "region": "Eastern Europe", "tz": ["Europe/Budapest"], "flag": "\U0001f1ed\U0001f1fa",
+        "mobile": ["20", "30", "31", "50", "70"],
+        "fixed": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        "tollfree": ["80"],
+        "area": {"1": "Budapest", "52": "Debrecen", "62": "Szeged"},
+    },
+    "BY": {
+        "name": "Belarus", "name_ur": "\u0628\u06cc\u0644\u0627\u0631\u0648\u0633", "code": "375",
+        "nsn": [9], "trunk": "8", "intl": "810",
+        "region": "Eastern Europe", "tz": ["Europe/Minsk"], "flag": "\U0001f1e7\U0001f1fe",
+        "mobile": ["25", "29", "33", "44"], "fixed": ["17", "16", "15", "22"],
+        "area": {"17": "Minsk", "16": "Brest", "22": "Mogilev"},
+    },
+    "BG": {
+        "name": "Bulgaria", "name_ur": "\u0628\u0644\u063a\u0627\u0631\u06cc\u06c1", "code": "359",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Europe", "tz": ["Europe/Sofia"], "flag": "\U0001f1e7\U0001f1ec",
+        "mobile": ["87", "88", "89", "98", "99"],
+        "fixed": ["2", "3", "4", "5", "6", "7"],
+        "area": {"2": "Sofia", "32": "Plovdiv", "52": "Varna"},
+    },
+    "RS": {
+        "name": "Serbia", "name_ur": "\u0633\u0631\u0628\u06cc\u0627", "code": "381",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Southern Europe", "tz": ["Europe/Belgrade"], "flag": "\U0001f1f7\U0001f1f8",
+        "mobile": ["6"], "fixed": ["1", "2", "3", "4", "5"],
+        "area": {"11": "Belgrade", "21": "Novi Sad", "18": "Ni\u0161"},
+    },
+    "HR": {
+        "name": "Croatia", "name_ur": "\u06a9\u0631\u0648\u0634\u06cc\u0627", "code": "385",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Southern Europe", "tz": ["Europe/Zagreb"], "flag": "\U0001f1ed\U0001f1f7",
+        "mobile": ["9"], "fixed": ["1", "2", "3", "4", "5", "6"],
+        "area": {"1": "Zagreb", "21": "Split", "31": "Osijek"},
+    },
+    "IS": {
+        "name": "Iceland", "name_ur": "\u0622\u0626\u0633 \u0644\u06cc\u0646\u0688", "code": "354",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Northern Europe", "tz": ["Atlantic/Reykjavik"], "flag": "\U0001f1ee\U0001f1f8",
+        "mobile": ["6", "7", "8"], "fixed": ["5"],
+    },
+    "LU": {
+        "name": "Luxembourg", "name_ur": "\u0644\u06a9\u0633\u0645\u0628\u0631\u06af", "code": "352",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Western Europe", "tz": ["Europe/Luxembourg"], "flag": "\U0001f1f1\U0001f1fa",
+        "mobile": ["6"], "fixed": ["2", "4", "5", "7", "8", "9"],
+    },
+    "MT": {
+        "name": "Malta", "name_ur": "\u0645\u0627\u0644\u0679\u0627", "code": "356",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Southern Europe", "tz": ["Europe/Malta"], "flag": "\U0001f1f2\U0001f1f9",
+        "mobile": ["7", "9"], "fixed": ["2"],
+    },
+    "CY": {
+        "name": "Cyprus", "name_ur": "\u0642\u0628\u0631\u0635", "code": "357",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Nicosia"], "flag": "\U0001f1e8\U0001f1fe",
+        "mobile": ["9"], "fixed": ["2"],
+    },
+
+    # ---------------------------- Americas ------------------------------
+    "US": {
+        "name": "United States", "name_ur": "\u0627\u0645\u0631\u06cc\u06a9\u06c1", "code": "1",
+        "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Northern America", "tz": ["America/New_York",
+                                             "America/Chicago",
+                                             "America/Denver",
+                                             "America/Los_Angeles"],
+        "flag": "\U0001f1fa\U0001f1f8",
+        "mobile": [], "fixed": [],
+        "tollfree": ["800", "833", "844", "855", "866", "877", "888"],
+        "premium": ["900"],
+        "note": "NANP: mobile and fixed numbers share the same ranges and "
+                "number portability applies, so line type cannot be derived "
+                "from the number alone.",
+        "area": {
+            "202": "Washington, DC", "203": "Connecticut", "205": "Alabama",
+            "206": "Seattle, WA", "207": "Maine", "208": "Idaho",
+            "210": "San Antonio, TX", "212": "New York City, NY",
+            "213": "Los Angeles, CA", "214": "Dallas, TX",
+            "215": "Philadelphia, PA", "216": "Cleveland, OH",
+            "303": "Denver, CO", "305": "Miami, FL", "312": "Chicago, IL",
+            "313": "Detroit, MI", "314": "St. Louis, MO",
+            "317": "Indianapolis, IN", "404": "Atlanta, GA",
+            "408": "San Jose, CA", "412": "Pittsburgh, PA",
+            "415": "San Francisco, CA", "469": "Dallas, TX",
+            "480": "Phoenix, AZ", "503": "Portland, OR",
+            "504": "New Orleans, LA", "510": "Oakland, CA",
+            "512": "Austin, TX", "513": "Cincinnati, OH",
+            "516": "Long Island, NY", "518": "Albany, NY",
+            "602": "Phoenix, AZ", "603": "New Hampshire",
+            "604": "Vancouver, BC (CA)", "612": "Minneapolis, MN",
+            "614": "Columbus, OH", "615": "Nashville, TN",
+            "617": "Boston, MA", "619": "San Diego, CA",
+            "626": "Pasadena, CA", "631": "Long Island, NY",
+            "646": "New York City, NY", "650": "Palo Alto, CA",
+            "702": "Las Vegas, NV", "703": "Virginia",
+            "704": "Charlotte, NC", "713": "Houston, TX",
+            "714": "Anaheim, CA", "718": "Brooklyn, NY",
+            "720": "Denver, CO", "732": "New Jersey",
+            "757": "Virginia Beach, VA", "770": "Atlanta, GA",
+            "773": "Chicago, IL", "781": "Boston, MA",
+            "786": "Miami, FL", "801": "Salt Lake City, UT",
+            "802": "Vermont", "804": "Richmond, VA",
+            "808": "Hawaii", "813": "Tampa, FL", "818": "Los Angeles, CA",
+            "832": "Houston, TX", "847": "Chicago, IL",
+            "858": "San Diego, CA", "860": "Connecticut",
+            "901": "Memphis, TN", "904": "Jacksonville, FL",
+            "907": "Alaska", "908": "New Jersey", "909": "San Bernardino, CA",
+            "910": "North Carolina", "914": "Westchester, NY",
+            "915": "El Paso, TX", "916": "Sacramento, CA",
+            "917": "New York City, NY", "919": "Raleigh, NC",
+            "929": "New York City, NY", "949": "Irvine, CA",
+            "954": "Fort Lauderdale, FL", "972": "Dallas, TX",
+            "973": "New Jersey",
+        },
+    },
+    "CA": {
+        "name": "Canada", "name_ur": "\u06a9\u06cc\u0646\u06cc\u0688\u0627", "code": "1",
+        "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Northern America", "tz": ["America/Toronto",
+                                             "America/Vancouver"],
+        "flag": "\U0001f1e8\U0001f1e6",
+        "mobile": [], "fixed": [],
+        "tollfree": ["800", "833", "844", "855", "866", "877", "888"],
+        "premium": ["900"],
+        "note": "NANP: line type cannot be derived from the number alone.",
+        "area": {
+            "204": "Manitoba", "236": "British Columbia",
+            "249": "Ontario", "250": "British Columbia",
+            "289": "Ontario", "306": "Saskatchewan", "343": "Ontario",
+            "365": "Ontario", "367": "Quebec", "403": "Calgary, AB",
+            "416": "Toronto, ON", "418": "Quebec City, QC",
+            "431": "Manitoba", "437": "Toronto, ON", "438": "Montreal, QC",
+            "450": "Quebec", "506": "New Brunswick",
+            "514": "Montreal, QC", "519": "Ontario", "579": "Quebec",
+            "581": "Quebec", "587": "Alberta", "604": "Vancouver, BC",
+            "613": "Ottawa, ON", "639": "Saskatchewan",
+            "647": "Toronto, ON", "705": "Ontario", "709": "Newfoundland",
+            "778": "British Columbia", "780": "Edmonton, AB",
+            "807": "Ontario", "819": "Quebec", "867": "Yukon / NWT / Nunavut",
+            "873": "Quebec", "902": "Nova Scotia / PEI",
+            "905": "Ontario",
+        },
+    },
+    "MX": {
+        "name": "Mexico", "name_ur": "\u0645\u06cc\u06a9\u0633\u06cc\u06a9\u0648", "code": "52",
+        "nsn": [10], "trunk": "", "intl": "00",
+        "region": "Central America", "tz": ["America/Mexico_City"], "flag": "\U0001f1f2\U0001f1fd",
+        "mobile": [], "fixed": [],
+        "tollfree": ["800"],
+        "premium": ["900"],
+        "note": "Mexico has full number portability; line type is not "
+                "derivable from the number.",
+        "area": {"55": "Mexico City", "33": "Guadalajara", "81": "Monterrey",
+                 "222": "Puebla", "998": "Canc\u00fan"},
+    },
+    "BR": {
+        "name": "Brazil", "name_ur": "\u0628\u0631\u0627\u0632\u06cc\u0644", "code": "55",
+        "nsn": [10, 11], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Sao_Paulo"], "flag": "\U0001f1e7\U0001f1f7",
+        "mobile": ["9"], "fixed": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "tollfree": ["800"],
+        "premium": ["900"],
+        "area": {"11": "S\u00e3o Paulo", "21": "Rio de Janeiro",
+                 "31": "Belo Horizonte", "41": "Curitiba",
+                 "51": "Porto Alegre", "61": "Bras\u00edlia", "71": "Salvador",
+                 "81": "Recife", "85": "Fortaleza"},
+    },
+    "AR": {
+        "name": "Argentina", "name_ur": "\u0627\u0631\u062c\u0646\u0679\u0627\u0626\u0646", "code": "54",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Argentina/Buenos_Aires"],
+        "flag": "\U0001f1e6\U0001f1f7",
+        "mobile": ["9"], "fixed": ["1", "2", "3", "4", "5", "6", "7", "8"],
+        "tollfree": ["800"],
+        "area": {"11": "Buenos Aires", "341": "Rosario", "351": "C\u00f3rdoba",
+                 "261": "Mendoza"},
+    },
+    "CL": {
+        "name": "Chile", "name_ur": "\u0686\u0644\u06cc", "code": "56",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "South America", "tz": ["America/Santiago"], "flag": "\U0001f1e8\U0001f1f1",
+        "mobile": ["9"], "fixed": ["2", "3", "4", "5", "6", "7"],
+        "tollfree": ["800"],
+        "area": {"2": "Santiago", "32": "Valpara\u00edso", "41": "Concepci\u00f3n"},
+    },
+    "CO": {
+        "name": "Colombia", "name_ur": "\u06a9\u0648\u0644\u0645\u0628\u06cc\u0627", "code": "57",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Bogota"], "flag": "\U0001f1e8\U0001f1f4",
+        "mobile": ["3"], "fixed": ["1", "2", "4", "5", "6", "7", "8"],
+        "tollfree": ["1800"],
+        "area": {"1": "Bogot\u00e1", "4": "Medell\u00edn", "2": "Cali",
+                 "5": "Barranquilla"},
+    },
+    "PE": {
+        "name": "Peru", "name_ur": "\u067e\u06cc\u0631\u0648", "code": "51",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Lima"], "flag": "\U0001f1f5\U0001f1ea",
+        "mobile": ["9"], "fixed": ["1", "4", "5", "6", "7", "8"],
+        "area": {"1": "Lima", "54": "Arequipa", "84": "Cusco"},
+    },
+    "VE": {
+        "name": "Venezuela", "name_ur": "\u0648\u06cc\u0646\u0632\u0648\u06cc\u0644\u0627", "code": "58",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Caracas"], "flag": "\U0001f1fb\U0001f1ea",
+        "mobile": ["4"], "fixed": ["2"],
+        "area": {"212": "Caracas", "241": "Valencia", "261": "Maracaibo"},
+    },
+    "EC": {
+        "name": "Ecuador", "name_ur": "\u0627\u06cc\u06a9\u0648\u0627\u0688\u0648\u0631", "code": "593",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Guayaquil"], "flag": "\U0001f1ea\U0001f1e8",
+        "mobile": ["9"], "fixed": ["2", "3", "4", "5", "6", "7"],
+        "area": {"2": "Quito", "4": "Guayaquil", "7": "Cuenca"},
+    },
+    "UY": {
+        "name": "Uruguay", "name_ur": "\u06cc\u0648\u0631\u0627\u06af\u0648\u0626\u06d2", "code": "598",
+        "nsn": [8], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Montevideo"], "flag": "\U0001f1fa\U0001f1fe",
+        "mobile": ["9"], "fixed": ["2", "4"],
+        "area": {"2": "Montevideo"},
+    },
+    "PY": {
+        "name": "Paraguay", "name_ur": "\u067e\u06cc\u0631\u0627\u06af\u0648\u0626\u06d2", "code": "595",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/Asuncion"], "flag": "\U0001f1f5\U0001f1fe",
+        "mobile": ["9"], "fixed": ["2", "3", "4", "5", "6", "7"],
+        "area": {"21": "Asunci\u00f3n"},
+    },
+    "BO": {
+        "name": "Bolivia", "name_ur": "\u0628\u0648\u0644\u06cc\u0648\u06cc\u0627", "code": "591",
+        "nsn": [8], "trunk": "0", "intl": "00",
+        "region": "South America", "tz": ["America/La_Paz"], "flag": "\U0001f1e7\U0001f1f4",
+        "mobile": ["6", "7"], "fixed": ["2", "3", "4"],
+        "area": {"2": "La Paz", "3": "Santa Cruz", "4": "Cochabamba"},
+    },
+    "CU": {
+        "name": "Cuba", "name_ur": "\u06a9\u06cc\u0648\u0628\u0627", "code": "53",
+        "nsn": [8], "trunk": "0", "intl": "119",
+        "region": "Caribbean", "tz": ["America/Havana"], "flag": "\U0001f1e8\U0001f1fa",
+        "mobile": ["5"], "fixed": ["7", "2", "3", "4"],
+        "area": {"7": "Havana", "22": "Santiago de Cuba"},
+    },
+    "DO": {
+        "name": "Dominican Republic", "name_ur": "\u0688\u0648\u0645\u06cc\u0646\u06cc\u06a9\u0646 \u0631\u06cc\u067e\u0628\u0644\u06a9",
+        "code": "1", "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Caribbean", "tz": ["America/Santo_Domingo"], "flag": "\U0001f1e9\U0001f1f4",
+        "mobile": [], "fixed": [],
+        "note": "NANP (809/829/849): line type cannot be derived.",
+        "area": {"809": "Dominican Republic", "829": "Dominican Republic",
+                 "849": "Dominican Republic"},
+    },
+    "JM": {
+        "name": "Jamaica", "name_ur": "\u062c\u0645\u06cc\u06a9\u0627", "code": "1",
+        "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Caribbean", "tz": ["America/Jamaica"], "flag": "\U0001f1ef\U0001f1f2",
+        "mobile": [], "fixed": [],
+        "note": "NANP (876/658): line type cannot be derived.",
+        "area": {"876": "Jamaica", "658": "Jamaica"},
+    },
+    "TT": {
+        "name": "Trinidad and Tobago", "name_ur": "\u0679\u0631\u06cc\u0646\u06cc\u0688\u0627\u0688 \u0648 \u0679\u0648\u0628\u0627\u06af\u0648",
+        "code": "1", "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Caribbean", "tz": ["America/Port_of_Spain"], "flag": "\U0001f1f9\U0001f1f9",
+        "mobile": [], "fixed": [],
+        "note": "NANP (868): line type cannot be derived.",
+        "area": {"868": "Trinidad and Tobago"},
+    },
+    "PR": {
+        "name": "Puerto Rico", "name_ur": "\u067e\u0648\u0631\u0679\u0648 \u0631\u06cc\u06a9\u0648", "code": "1",
+        "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Caribbean", "tz": ["America/Puerto_Rico"], "flag": "\U0001f1f5\U0001f1f7",
+        "mobile": [], "fixed": [],
+        "note": "NANP (787/939): line type cannot be derived.",
+        "area": {"787": "Puerto Rico", "939": "Puerto Rico"},
+    },
+    "GT": {
+        "name": "Guatemala", "name_ur": "\u06af\u0648\u0626\u0679\u06d2 \u0645\u0627\u0644\u0627", "code": "502",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Central America", "tz": ["America/Guatemala"], "flag": "\U0001f1ec\U0001f1f9",
+        "mobile": ["3", "4", "5"], "fixed": ["2", "6", "7"],
+        "area": {"2": "Guatemala City"},
+    },
+    "CR": {
+        "name": "Costa Rica", "name_ur": "\u06a9\u0648\u0633\u0679\u0627\u0631\u06cc\u06a9\u0627", "code": "506",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Central America", "tz": ["America/Costa_Rica"], "flag": "\U0001f1e8\U0001f1f7",
+        "mobile": ["5", "6", "7", "8"], "fixed": ["2"],
+        "area": {"2": "San Jos\u00e9"},
+    },
+    "PA": {
+        "name": "Panama", "name_ur": "\u067e\u0627\u0646\u0627\u0645\u0627", "code": "507",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Central America", "tz": ["America/Panama"], "flag": "\U0001f1f5\U0001f1e6",
+        "mobile": ["6"], "fixed": ["2", "3", "4", "5", "7", "8"],
+        "area": {"2": "Panama City"},
+    },
+    "HN": {
+        "name": "Honduras", "name_ur": "\u06c1\u0648\u0646\u0688\u0648\u0631\u0627\u0633", "code": "504",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Central America", "tz": ["America/Tegucigalpa"], "flag": "\U0001f1ed\U0001f1f3",
+        "mobile": ["3", "8", "9"], "fixed": ["2"],
+    },
+    "SV": {
+        "name": "El Salvador", "name_ur": "\u0627\u06cc\u0644 \u0633\u06cc\u0644\u0648\u0627\u0688\u0648\u0631", "code": "503",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Central America", "tz": ["America/El_Salvador"], "flag": "\U0001f1f8\U0001f1fb",
+        "mobile": ["6", "7"], "fixed": ["2"],
+    },
+    "NI": {
+        "name": "Nicaragua", "name_ur": "\u0646\u06a9\u0627\u0631\u0627\u06af\u0648\u0627", "code": "505",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Central America", "tz": ["America/Managua"], "flag": "\U0001f1f3\U0001f1ee",
+        "mobile": ["5", "7", "8"], "fixed": ["2"],
+    },
+
+    # ---------------------------- Africa --------------------------------
+    "EG": {
+        "name": "Egypt", "name_ur": "\u0645\u0635\u0631", "code": "20",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "Northern Africa", "tz": ["Africa/Cairo"], "flag": "\U0001f1ea\U0001f1ec",
+        "mobile": ["10", "11", "12", "15"],
+        "fixed": ["2", "3", "4", "5", "6", "7", "8", "9"],
+        "tollfree": ["800"],
+        "area": {"2": "Cairo", "3": "Alexandria", "62": "Port Said",
+                 "65": "Red Sea"},
+    },
+    "MA": {
+        "name": "Morocco", "name_ur": "\u0645\u0631\u0627\u06a9\u0634", "code": "212",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Northern Africa", "tz": ["Africa/Casablanca"], "flag": "\U0001f1f2\U0001f1e6",
+        "mobile": ["6", "7"], "fixed": ["5"],
+        "tollfree": ["800"],
+        "area": {"5": "Fixed line (national)"},
+    },
+    "DZ": {
+        "name": "Algeria", "name_ur": "\u0627\u0644\u062c\u0632\u0627\u0626\u0631", "code": "213",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Northern Africa", "tz": ["Africa/Algiers"], "flag": "\U0001f1e9\U0001f1ff",
+        "mobile": ["5", "6", "7"], "fixed": ["2", "3", "4"],
+        "area": {"21": "Algiers", "31": "Oran", "41": "Constantine"},
+    },
+    "TN": {
+        "name": "Tunisia", "name_ur": "\u062a\u06cc\u0648\u0646\u0633", "code": "216",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Northern Africa", "tz": ["Africa/Tunis"], "flag": "\U0001f1f9\U0001f1f3",
+        "mobile": ["2", "4", "5", "9"], "fixed": ["7"],
+        "area": {"71": "Tunis", "73": "Sousse"},
+    },
+    "LY": {
+        "name": "Libya", "name_ur": "\u0644\u06cc\u0628\u06cc\u0627", "code": "218",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Northern Africa", "tz": ["Africa/Tripoli"], "flag": "\U0001f1f1\U0001f1fe",
+        "mobile": ["9"], "fixed": ["2", "3", "4", "5", "6", "7"],
+        "area": {"21": "Tripoli", "61": "Benghazi"},
+    },
+    "SD": {
+        "name": "Sudan", "name_ur": "\u0633\u0648\u0688\u0627\u0646", "code": "249",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Northern Africa", "tz": ["Africa/Khartoum"], "flag": "\U0001f1f8\U0001f1e9",
+        "mobile": ["9"], "fixed": ["1", "2", "3", "4", "5", "6", "7"],
+        "area": {"1": "Khartoum"},
+    },
+    "NG": {
+        "name": "Nigeria", "name_ur": "\u0646\u0627\u0626\u062c\u06cc\u0631\u06cc\u0627", "code": "234",
+        "nsn": [10], "trunk": "0", "intl": "009",
+        "region": "Western Africa", "tz": ["Africa/Lagos"], "flag": "\U0001f1f3\U0001f1ec",
+        "mobile": ["70", "80", "81", "90", "91"],
+        "fixed": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        "tollfree": ["800"],
+        "area": {"1": "Lagos", "9": "Abuja", "2": "Ibadan"},
+    },
+    "KE": {
+        "name": "Kenya", "name_ur": "\u06a9\u06cc\u0646\u06cc\u0627", "code": "254",
+        "nsn": [9], "trunk": "0", "intl": "000",
+        "region": "Eastern Africa", "tz": ["Africa/Nairobi"], "flag": "\U0001f1f0\U0001f1ea",
+        "mobile": ["7", "1"], "fixed": ["2", "3", "4", "5", "6"],
+        "tollfree": ["800"],
+        "area": {"20": "Nairobi", "41": "Mombasa", "51": "Nakuru"},
+    },
+    "GH": {
+        "name": "Ghana", "name_ur": "\u06af\u06be\u0627\u0646\u0627", "code": "233",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Accra"], "flag": "\U0001f1ec\U0001f1ed",
+        "mobile": ["2", "5"], "fixed": ["3"],
+        "area": {"30": "Accra", "32": "Kumasi"},
+    },
+    "TZ": {
+        "name": "Tanzania", "name_ur": "\u062a\u0646\u0632\u0627\u0646\u06cc\u06c1", "code": "255",
+        "nsn": [9], "trunk": "0", "intl": "000",
+        "region": "Eastern Africa", "tz": ["Africa/Dar_es_Salaam"], "flag": "\U0001f1f9\U0001f1ff",
+        "mobile": ["6", "7"], "fixed": ["2"],
+        "area": {"22": "Dar es Salaam", "26": "Dodoma"},
+    },
+    "UG": {
+        "name": "Uganda", "name_ur": "\u06cc\u0648\u06af\u0646\u0688\u0627", "code": "256",
+        "nsn": [9], "trunk": "0", "intl": "000",
+        "region": "Eastern Africa", "tz": ["Africa/Kampala"], "flag": "\U0001f1fa\U0001f1ec",
+        "mobile": ["7"], "fixed": ["4"],
+        "area": {"41": "Kampala"},
+    },
+    "ET": {
+        "name": "Ethiopia", "name_ur": "\u0627\u06cc\u062a\u06be\u0648\u067e\u06cc\u0627", "code": "251",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Addis_Ababa"], "flag": "\U0001f1ea\U0001f1f9",
+        "mobile": ["9"], "fixed": ["1", "2", "3", "4", "5", "6", "7"],
+        "area": {"11": "Addis Ababa"},
+    },
+    "ZA": {
+        "name": "South Africa", "name_ur": "\u062c\u0646\u0648\u0628\u06cc \u0627\u0641\u0631\u06cc\u0642\u06c1", "code": "27",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Southern Africa", "tz": ["Africa/Johannesburg"], "flag": "\U0001f1ff\U0001f1e6",
+        "mobile": ["6", "7", "8"],
+        "fixed": ["1", "2", "3", "4", "5"],
+        "tollfree": ["800"],
+        "area": {"11": "Johannesburg", "21": "Cape Town", "31": "Durban",
+                 "12": "Pretoria"},
+    },
+    "ZW": {
+        "name": "Zimbabwe", "name_ur": "\u0632\u0645\u0628\u0627\u0628\u0648\u06d2", "code": "263",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Harare"], "flag": "\U0001f1ff\U0001f1fc",
+        "mobile": ["7"], "fixed": ["2", "4"],
+        "area": {"4": "Harare", "9": "Bulawayo"},
+    },
+    "ZM": {
+        "name": "Zambia", "name_ur": "\u0632\u06cc\u0645\u0628\u06cc\u0627", "code": "260",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Lusaka"], "flag": "\U0001f1ff\U0001f1f2",
+        "mobile": ["9", "7"], "fixed": ["2"],
+        "area": {"21": "Lusaka"},
+    },
+    "MZ": {
+        "name": "Mozambique", "name_ur": "\u0645\u0648\u0632\u0645\u0628\u06cc\u0642", "code": "258",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Maputo"], "flag": "\U0001f1f2\U0001f1ff",
+        "mobile": ["8"], "fixed": ["2"],
+        "area": {"21": "Maputo"},
+    },
+    "AO": {
+        "name": "Angola", "name_ur": "\u0627\u0646\u06af\u0648\u0644\u0627", "code": "244",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Luanda"], "flag": "\U0001f1e6\U0001f1f4",
+        "mobile": ["9"], "fixed": ["2"],
+        "area": {"222": "Luanda"},
+    },
+    "SN": {
+        "name": "Senegal", "name_ur": "\u0633\u06cc\u0646\u06cc\u06af\u0627\u0644", "code": "221",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Dakar"], "flag": "\U0001f1f8\U0001f1f3",
+        "mobile": ["7"], "fixed": ["3"],
+        "area": {"33": "Dakar"},
+    },
+    "CI": {
+        "name": "C\u00f4te d'Ivoire", "name_ur": "\u0622\u0626\u06cc\u0648\u0631\u06cc \u06a9\u0648\u0633\u0679", "code": "225",
+        "nsn": [10], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Abidjan"], "flag": "\U0001f1e8\U0001f1ee",
+        "mobile": ["0", "4", "5", "7"], "fixed": ["2"],
+        "area": {"27": "Abidjan"},
+    },
+    "CM": {
+        "name": "Cameroon", "name_ur": "\u06a9\u06cc\u0645\u0631\u0648\u0646", "code": "237",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Douala"], "flag": "\U0001f1e8\U0001f1f2",
+        "mobile": ["6"], "fixed": ["2", "3"],
+        "area": {"222": "Douala", "233": "Yaound\u00e9"},
+    },
+    "SO": {
+        "name": "Somalia", "name_ur": "\u0635\u0648\u0645\u0627\u0644\u06cc\u06c1", "code": "252",
+        "nsn": [8, 9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Mogadishu"], "flag": "\U0001f1f8\U0001f1f4",
+        "mobile": ["6", "7", "9"], "fixed": ["1", "2", "3", "4", "5"],
+        "area": {"1": "Mogadishu"},
+    },
+    "SS": {
+        "name": "South Sudan", "name_ur": "\u062c\u0646\u0648\u0628\u06cc \u0633\u0648\u0688\u0627\u0646", "code": "211",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Juba"], "flag": "\U0001f1f8\U0001f1f8",
+        "mobile": ["9"], "fixed": ["1"],
+    },
+    "RW": {
+        "name": "Rwanda", "name_ur": "\u0631\u0648\u0627\u0646\u0688\u0627", "code": "250",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Kigali"], "flag": "\U0001f1f7\U0001f1fc",
+        "mobile": ["7"], "fixed": ["2"],
+        "area": {"252": "Kigali"},
+    },
+    "MU": {
+        "name": "Mauritius", "name_ur": "\u0645\u0627\u0631\u06cc\u0634\u0633", "code": "230",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Indian/Mauritius"], "flag": "\U0001f1f2\U0001f1fa",
+        "mobile": ["5"], "fixed": ["2", "4", "6"],
+    },
+    "BW": {
+        "name": "Botswana", "name_ur": "\u0628\u0648\u0679\u0633\u0648\u0627\u0646\u0627", "code": "267",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Southern Africa", "tz": ["Africa/Gaborone"], "flag": "\U0001f1e7\U0001f1fc",
+        "mobile": ["7"], "fixed": ["3", "4", "5", "6"],
+    },
+    "NA": {
+        "name": "Namibia", "name_ur": "\u0646\u0645\u06cc\u0628\u06cc\u0627", "code": "264",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Southern Africa", "tz": ["Africa/Windhoek"], "flag": "\U0001f1f3\U0001f1e6",
+        "mobile": ["8"], "fixed": ["6"],
+        "area": {"61": "Windhoek"},
+    },
+    "MW": {
+        "name": "Malawi", "name_ur": "\u0645\u0644\u0627\u0648\u06cc", "code": "265",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Blantyre"], "flag": "\U0001f1f2\U0001f1fc",
+        "mobile": ["8", "9"], "fixed": ["1"],
+        "area": {"1": "Lilongwe / Blantyre"},
+    },
+    "MG": {
+        "name": "Madagascar", "name_ur": "\u0645\u0688\u063a\u0627\u0633\u06a9\u0631", "code": "261",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Indian/Antananarivo"], "flag": "\U0001f1f2\U0001f1ec",
+        "mobile": ["3"], "fixed": ["2"],
+        "area": {"20": "Antananarivo"},
+    },
+    "ML": {
+        "name": "Mali", "name_ur": "\u0645\u0627\u0644\u06cc", "code": "223",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Bamako"], "flag": "\U0001f1f2\U0001f1f1",
+        "mobile": ["6", "7", "8", "9"], "fixed": ["2"],
+    },
+    "BF": {
+        "name": "Burkina Faso", "name_ur": "\u0628\u0631\u06a9\u06cc\u0646\u0627 \u0641\u0627\u0633\u0648", "code": "226",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Ouagadougou"], "flag": "\U0001f1e7\U0001f1eb",
+        "mobile": ["5", "6", "7"], "fixed": ["2"],
+    },
+    "NE": {
+        "name": "Niger", "name_ur": "\u0646\u0627\u0626\u062c\u0631", "code": "227",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Niamey"], "flag": "\U0001f1f3\U0001f1ea",
+        "mobile": ["8", "9"], "fixed": ["2"],
+    },
+    "TD": {
+        "name": "Chad", "name_ur": "\u0686\u0627\u0688", "code": "235",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Ndjamena"], "flag": "\U0001f1f9\U0001f1e9",
+        "mobile": ["6", "9"], "fixed": ["2"],
+    },
+    "GN": {
+        "name": "Guinea", "name_ur": "\u06af\u0646\u06cc", "code": "224",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Conakry"], "flag": "\U0001f1ec\U0001f1f3",
+        "mobile": ["6"], "fixed": ["3"],
+    },
+    "SL": {
+        "name": "Sierra Leone", "name_ur": "\u0633\u06cc\u0631\u0627\u0644\u06cc\u0648\u0646", "code": "232",
+        "nsn": [8], "trunk": "0", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Freetown"], "flag": "\U0001f1f8\U0001f1f1",
+        "mobile": ["7", "8", "9"], "fixed": ["2"],
+    },
+    "LR": {
+        "name": "Liberia", "name_ur": "\u0644\u0627\u0626\u0628\u06cc\u0631\u06cc\u0627", "code": "231",
+        "nsn": [8, 9], "trunk": "0", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Monrovia"], "flag": "\U0001f1f1\U0001f1f7",
+        "mobile": ["7", "8", "9"], "fixed": ["2"],
+    },
+    "TG": {
+        "name": "Togo", "name_ur": "\u0679\u0648\u06af\u0648", "code": "228",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Lome"], "flag": "\U0001f1f9\U0001f1ec",
+        "mobile": ["7", "9"], "fixed": ["2"],
+    },
+    "BJ": {
+        "name": "Benin", "name_ur": "\u0628\u06cc\u0646\u0646", "code": "229",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Porto-Novo"], "flag": "\U0001f1e7\U0001f1ef",
+        "mobile": ["6", "9"], "fixed": ["2"],
+    },
+    "GM": {
+        "name": "Gambia", "name_ur": "\u06af\u06cc\u0645\u0628\u06cc\u0627", "code": "220",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Banjul"], "flag": "\U0001f1ec\U0001f1f2",
+        "mobile": ["2", "3", "5", "6", "7", "9"], "fixed": ["4"],
+    },
+    "MR": {
+        "name": "Mauritania", "name_ur": "\u0645\u0648\u0631\u06cc\u0637\u0627\u0646\u06cc\u06c1", "code": "222",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Nouakchott"], "flag": "\U0001f1f2\U0001f1f7",
+        "mobile": ["2", "3", "4"], "fixed": ["4"],
+    },
+    "GA": {
+        "name": "Gabon", "name_ur": "\u06af\u06cc\u0628\u0648\u0646", "code": "241",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Libreville"], "flag": "\U0001f1ec\U0001f1e6",
+        "mobile": ["6", "7"], "fixed": ["1"],
+    },
+    "CG": {
+        "name": "Congo", "name_ur": "\u06a9\u0627\u0646\u06af\u0648", "code": "242",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Brazzaville"], "flag": "\U0001f1e8\U0001f1ec",
+        "mobile": ["0", "5", "6"], "fixed": ["2"],
+    },
+    "CD": {
+        "name": "DR Congo", "name_ur": "\u0688\u06cc \u0622\u0631 \u06a9\u0627\u0646\u06af\u0648", "code": "243",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Kinshasa"], "flag": "\U0001f1e8\U0001f1e9",
+        "mobile": ["8", "9"], "fixed": ["1", "2", "3", "4", "5", "6"],
+    },
+    "DJ": {
+        "name": "Djibouti", "name_ur": "\u062c\u0628\u0648\u062a\u06cc", "code": "253",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Djibouti"], "flag": "\U0001f1e9\U0001f1ef",
+        "mobile": ["7", "8"], "fixed": ["2"],
+    },
+    "ER": {
+        "name": "Eritrea", "name_ur": "\u0627\u0631\u06cc\u0679\u06cc\u0631\u06cc\u0627", "code": "291",
+        "nsn": [7], "trunk": "0", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Asmara"], "flag": "\U0001f1ea\U0001f1f7",
+        "mobile": ["7"], "fixed": ["1"],
+    },
+    "BI": {
+        "name": "Burundi", "name_ur": "\u0628\u0631\u0648\u0646\u0688\u06cc", "code": "257",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Africa/Bujumbura"], "flag": "\U0001f1e7\U0001f1ee",
+        "mobile": ["6", "7"], "fixed": ["2"],
+    },
+    "LS": {
+        "name": "Lesotho", "name_ur": "\u0644\u06cc\u0633\u0648\u062a\u06be\u0648", "code": "266",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Southern Africa", "tz": ["Africa/Maseru"], "flag": "\U0001f1f1\U0001f1f8",
+        "mobile": ["5", "6"], "fixed": ["2"],
+    },
+    "SZ": {
+        "name": "Eswatini", "name_ur": "\u0627\u0633\u0648\u0627\u062a\u06cc\u0646\u06cc", "code": "268",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Southern Africa", "tz": ["Africa/Mbabane"], "flag": "\U0001f1f8\U0001f1ff",
+        "mobile": ["7", "6"], "fixed": ["2"],
+    },
+    "SC": {
+        "name": "Seychelles", "name_ur": "\u0633\u06cc\u0634\u0644\u0632", "code": "248",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Indian/Mahe"], "flag": "\U0001f1f8\U0001f1e8",
+        "mobile": ["2", "4"], "fixed": ["4"],
+    },
+    "CV": {
+        "name": "Cabo Verde", "name_ur": "\u06a9\u06cc\u067e \u0648\u0631\u0688\u06cc", "code": "238",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Atlantic/Cape_Verde"], "flag": "\U0001f1e8\U0001f1fb",
+        "mobile": ["5", "9"], "fixed": ["2"],
+    },
+    "ST": {
+        "name": "S\u00e3o Tom\u00e9 and Pr\u00edncipe", "name_ur": "\u0633\u0627\u0624 \u0679\u0648\u0645\u06d2 \u0648 \u067e\u0631\u0646\u0633\u067e\u06d2",
+        "code": "239", "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Sao_Tome"], "flag": "\U0001f1f8\U0001f1f9",
+        "mobile": ["9"], "fixed": ["2"],
+    },
+    "GQ": {
+        "name": "Equatorial Guinea", "name_ur": "\u0627\u0633\u062a\u0648\u0627\u0626\u06cc \u06af\u0646\u06cc", "code": "240",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Middle Africa", "tz": ["Africa/Malabo"], "flag": "\U0001f1ec\U0001f1f6",
+        "mobile": ["2", "5"], "fixed": ["3"],
+    },
+    "KM": {
+        "name": "Comoros", "name_ur": "\u06a9\u0648\u0645\u0648\u0631\u0648\u0633", "code": "269",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Eastern Africa", "tz": ["Indian/Comoro"], "flag": "\U0001f1f0\U0001f1f2",
+        "mobile": ["3", "4"], "fixed": ["7"],
+    },
+    "GW": {
+        "name": "Guinea-Bissau", "name_ur": "\u06af\u0646\u06cc \u0628\u0633\u0627\u0624", "code": "245",
+        "nsn": [9], "trunk": "", "intl": "00",
+        "region": "Western Africa", "tz": ["Africa/Bissau"], "flag": "\U0001f1ec\U0001f1fc",
+        "mobile": ["9", "6"], "fixed": ["3"],
+    },
+
+    # ---------------------------- Asia-Pacific --------------------------
+    "CN": {
+        "name": "China", "name_ur": "\u0686\u06cc\u0646", "code": "86",
+        "nsn": [11], "trunk": "0", "intl": "00",
+        "region": "Eastern Asia", "tz": ["Asia/Shanghai"], "flag": "\U0001f1e8\U0001f1f3",
+        "mobile": ["13", "14", "15", "16", "17", "18", "19"],
+        "fixed": ["10", "20", "21", "22", "23", "24", "25", "27", "28",
+                  "29", "3", "4", "5", "6", "7", "8", "9"],
+        "tollfree": ["400", "800"],
+        "area": {"10": "Beijing", "21": "Shanghai", "20": "Guangzhou",
+                 "755": "Shenzhen", "28": "Chengdu", "571": "Hangzhou"},
+    },
+    "JP": {
+        "name": "Japan", "name_ur": "\u062c\u0627\u067e\u0627\u0646", "code": "81",
+        "nsn": [10], "trunk": "0", "intl": "010",
+        "region": "Eastern Asia", "tz": ["Asia/Tokyo"], "flag": "\U0001f1ef\U0001f1f5",
+        "mobile": ["70", "80", "90"],
+        "fixed": ["3", "4", "5", "6", "7", "8", "9", "2"],
+        "voip": ["50"],
+        "tollfree": ["120", "800"],
+        "premium": ["570", "990"],
+        "area": {"3": "Tokyo", "6": "Osaka", "52": "Nagoya",
+                 "11": "Sapporo", "92": "Fukuoka"},
+    },
+    "KR": {
+        "name": "South Korea", "name_ur": "\u062c\u0646\u0648\u0628\u06cc \u06a9\u0648\u0631\u06cc\u0627", "code": "82",
+        "nsn": [9, 10], "trunk": "0", "intl": "001",
+        "region": "Eastern Asia", "tz": ["Asia/Seoul"], "flag": "\U0001f1f0\U0001f1f7",
+        "mobile": ["10"], "fixed": ["2", "3", "4", "5", "6"],
+        "voip": ["70"],
+        "tollfree": ["80"],
+        "area": {"2": "Seoul", "31": "Gyeonggi", "32": "Incheon",
+                 "51": "Busan", "53": "Daegu"},
+    },
+    "TW": {
+        "name": "Taiwan", "name_ur": "\u062a\u0627\u0626\u06cc\u0648\u0627\u0646", "code": "886",
+        "nsn": [9], "trunk": "0", "intl": "002",
+        "region": "Eastern Asia", "tz": ["Asia/Taipei"], "flag": "\U0001f1f9\U0001f1fc",
+        "mobile": ["9"], "fixed": ["2", "3", "4", "5", "6", "7", "8"],
+        "tollfree": ["800"],
+        "area": {"2": "Taipei", "4": "Taichung", "7": "Kaohsiung"},
+    },
+    "HK": {
+        "name": "Hong Kong", "name_ur": "\u06c1\u0627\u0646\u06af \u06a9\u0627\u0646\u06af", "code": "852",
+        "nsn": [8], "trunk": "", "intl": "001",
+        "region": "Eastern Asia", "tz": ["Asia/Hong_Kong"], "flag": "\U0001f1ed\U0001f1f0",
+        "mobile": ["5", "6", "9"], "fixed": ["2", "3"],
+        "tollfree": ["800"],
+    },
+    "MO": {
+        "name": "Macau", "name_ur": "\u0645\u06a9\u0627\u0624", "code": "853",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Eastern Asia", "tz": ["Asia/Macau"], "flag": "\U0001f1f2\U0001f1f4",
+        "mobile": ["6"], "fixed": ["2", "8"],
+    },
+    "SG": {
+        "name": "Singapore", "name_ur": "\u0633\u0646\u06af\u0627\u067e\u0648\u0631", "code": "65",
+        "nsn": [8], "trunk": "", "intl": "001",
+        "region": "South-Eastern Asia", "tz": ["Asia/Singapore"], "flag": "\U0001f1f8\U0001f1ec",
+        "mobile": ["8", "9"], "fixed": ["6"],
+        "voip": ["3"],
+        "tollfree": ["1800"],
+    },
+    "MY": {
+        "name": "Malaysia", "name_ur": "\u0645\u0644\u0627\u0626\u06cc\u0634\u06cc\u0627", "code": "60",
+        "nsn": [9, 10], "trunk": "0", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Kuala_Lumpur"], "flag": "\U0001f1f2\U0001f1fe",
+        "mobile": ["10", "11", "12", "13", "14", "16", "17", "18", "19"],
+        "fixed": ["3", "4", "5", "6", "7", "8", "9"],
+        "tollfree": ["1800"],
+        "area": {"3": "Kuala Lumpur / Selangor", "4": "Penang / Kedah",
+                 "5": "Perak", "7": "Johor", "8": "Sarawak",
+                 "9": "Pahang / Kelantan"},
+    },
+    "ID": {
+        "name": "Indonesia", "name_ur": "\u0627\u0646\u0688\u0648\u0646\u06cc\u0634\u06cc\u0627", "code": "62",
+        "nsn": [9, 10, 11, 12], "trunk": "0", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Jakarta"], "flag": "\U0001f1ee\U0001f1e9",
+        "mobile": ["8"], "fixed": ["2", "3", "4", "5", "6", "7", "9"],
+        "tollfree": ["800"],
+        "area": {"21": "Jakarta", "22": "Bandung", "31": "Surabaya",
+                 "61": "Medan", "274": "Yogyakarta"},
+    },
+    "TH": {
+        "name": "Thailand", "name_ur": "\u062a\u06be\u0627\u0626\u06cc \u0644\u06cc\u0646\u0688", "code": "66",
+        "nsn": [9], "trunk": "0", "intl": "001",
+        "region": "South-Eastern Asia", "tz": ["Asia/Bangkok"], "flag": "\U0001f1f9\U0001f1ed",
+        "mobile": ["6", "8", "9"], "fixed": ["2", "3", "4", "5", "7"],
+        "tollfree": ["1800"],
+        "area": {"2": "Bangkok", "38": "Chonburi", "53": "Chiang Mai"},
+    },
+    "VN": {
+        "name": "Vietnam", "name_ur": "\u0648\u06cc\u062a\u0646\u0627\u0645", "code": "84",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Ho_Chi_Minh"], "flag": "\U0001f1fb\U0001f1f3",
+        "mobile": ["3", "5", "7", "8", "9"],
+        "fixed": ["2", "4", "6"],
+        "tollfree": ["1800"],
+        "area": {"24": "Hanoi", "28": "Ho Chi Minh City", "236": "Da Nang"},
+    },
+    "PH": {
+        "name": "Philippines", "name_ur": "\u0641\u0644\u067e\u0627\u0626\u0646", "code": "63",
+        "nsn": [10], "trunk": "0", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Manila"], "flag": "\U0001f1f5\U0001f1ed",
+        "mobile": ["9"], "fixed": ["2", "3", "4", "5", "6", "7", "8"],
+        "tollfree": ["1800"],
+        "area": {"2": "Metro Manila", "32": "Cebu", "82": "Davao"},
+    },
+    "KH": {
+        "name": "Cambodia", "name_ur": "\u06a9\u0645\u0628\u0648\u0688\u06cc\u0627", "code": "855",
+        "nsn": [8, 9], "trunk": "0", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Phnom_Penh"], "flag": "\U0001f1f0\U0001f1ed",
+        "mobile": ["1", "6", "7", "8", "9"], "fixed": ["2", "3", "4", "5"],
+        "area": {"23": "Phnom Penh"},
+    },
+    "LA": {
+        "name": "Laos", "name_ur": "\u0644\u0627\u0624\u0633", "code": "856",
+        "nsn": [8, 9, 10], "trunk": "0", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Vientiane"], "flag": "\U0001f1f1\U0001f1e6",
+        "mobile": ["2", "5", "9"], "fixed": ["2"],
+        "area": {"21": "Vientiane"},
+    },
+    "MM": {
+        "name": "Myanmar", "name_ur": "\u0645\u06cc\u0627\u0646\u0645\u0627\u0631", "code": "95",
+        "nsn": [8, 9, 10], "trunk": "0", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Yangon"], "flag": "\U0001f1f2\U0001f1f2",
+        "mobile": ["9"], "fixed": ["1", "2", "3", "4", "5", "6", "7"],
+        "area": {"1": "Yangon", "2": "Mandalay"},
+    },
+    "BN": {
+        "name": "Brunei", "name_ur": "\u0628\u0631\u0648\u0646\u0627\u0626\u06cc", "code": "673",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Brunei"], "flag": "\U0001f1e7\U0001f1f3",
+        "mobile": ["7", "8"], "fixed": ["2", "3"],
+    },
+    "TL": {
+        "name": "Timor-Leste", "name_ur": "\u0645\u0634\u0631\u0642\u06cc \u062a\u06cc\u0645\u0648\u0631", "code": "670",
+        "nsn": [7, 8], "trunk": "", "intl": "00",
+        "region": "South-Eastern Asia", "tz": ["Asia/Dili"], "flag": "\U0001f1f9\U0001f1f1",
+        "mobile": ["7"], "fixed": ["3"],
+    },
+    "AU": {
+        "name": "Australia", "name_ur": "\u0622\u0633\u0679\u0631\u06cc\u0644\u06cc\u0627", "code": "61",
+        "nsn": [9], "trunk": "0", "intl": "0011",
+        "region": "Oceania", "tz": ["Australia/Sydney",
+                                    "Australia/Perth"], "flag": "\U0001f1e6\U0001f1fa",
+        "mobile": ["4"], "fixed": ["2", "3", "7", "8"],
+        "voip": ["5"],
+        "tollfree": ["1800", "1300"],
+        "premium": ["190"],
+        "area": {"2": "Sydney / NSW", "3": "Melbourne / VIC",
+                 "7": "Brisbane / QLD", "8": "Adelaide / Perth"},
+    },
+    "NZ": {
+        "name": "New Zealand", "name_ur": "\u0646\u06cc\u0648\u0632\u06cc \u0644\u06cc\u0646\u0688", "code": "64",
+        "nsn": [8, 9, 10], "trunk": "0", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Auckland"], "flag": "\U0001f1f3\U0001f1ff",
+        "mobile": ["2"], "fixed": ["3", "4", "6", "7", "9"],
+        "tollfree": ["800"],
+        "area": {"9": "Auckland", "4": "Wellington", "3": "Christchurch"},
+    },
+    "FJ": {
+        "name": "Fiji", "name_ur": "\u0641\u062c\u06cc", "code": "679",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Fiji"], "flag": "\U0001f1eb\U0001f1ef",
+        "mobile": ["7", "9"], "fixed": ["6"],
+    },
+    "PG": {
+        "name": "Papua New Guinea", "name_ur": "\u067e\u0627\u067e\u0648\u0627 \u0646\u06cc\u0648 \u06af\u0646\u06cc", "code": "675",
+        "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Port_Moresby"], "flag": "\U0001f1f5\U0001f1ec",
+        "mobile": ["7"], "fixed": ["3", "4", "5", "6"],
+    },
+    "NC": {
+        "name": "New Caledonia", "name_ur": "\u0646\u06cc\u0648 \u06a9\u06cc\u0644\u06cc\u0688\u0648\u0646\u06cc\u0627", "code": "687",
+        "nsn": [6], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Noumea"], "flag": "\U0001f1f3\U0001f1e8",
+        "mobile": ["7", "8", "9"], "fixed": ["2", "3", "4", "5"],
+    },
+    "PF": {
+        "name": "French Polynesia", "name_ur": "\u0641\u0631\u0627\u0646\u0633\u06cc\u0633\u06cc \u067e\u0648\u0644\u06cc\u0646\u06cc\u0634\u06cc\u0627",
+        "code": "689", "nsn": [8], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Tahiti"], "flag": "\U0001f1f5\U0001f1eb",
+        "mobile": ["8", "7"], "fixed": ["4"],
+    },
+    "WS": {
+        "name": "Samoa", "name_ur": "\u0633\u0627\u0645\u0648\u0622", "code": "685",
+        "nsn": [5, 6, 7], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Apia"], "flag": "\U0001f1fc\U0001f1f8",
+        "mobile": ["7"], "fixed": ["2", "3", "4", "5", "6"],
+    },
+    "TO": {
+        "name": "Tonga", "name_ur": "\u0679\u0648\u0646\u06af\u0627", "code": "676",
+        "nsn": [5, 6, 7], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Tongatapu"], "flag": "\U0001f1f9\U0001f1f4",
+        "mobile": ["7", "8"], "fixed": ["2", "3", "4", "5", "6"],
+    },
+    "VU": {
+        "name": "Vanuatu", "name_ur": "\u0648\u0627\u0646\u0648\u0627\u062a\u0648", "code": "678",
+        "nsn": [5, 6, 7], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Efate"], "flag": "\U0001f1fb\U0001f1fa",
+        "mobile": ["5", "7"], "fixed": ["2", "3", "4", "6", "8"],
+    },
+    "SB": {
+        "name": "Solomon Islands", "name_ur": "\u0633\u0648\u0644\u0648\u0645\u0646 \u0622\u0626\u0644\u06cc\u0646\u0688\u0632", "code": "677",
+        "nsn": [5, 7], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Guadalcanal"], "flag": "\U0001f1f8\U0001f1e7",
+        "mobile": ["7", "8"], "fixed": ["2", "3", "4", "6"],
+    },
+    "KI": {
+        "name": "Kiribati", "name_ur": "\u06a9\u0631\u06cc\u0628\u0627\u062a\u06cc", "code": "686",
+        "nsn": [5, 8], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Tarawa"], "flag": "\U0001f1f0\U0001f1ee",
+        "mobile": ["6", "7", "9"], "fixed": ["2", "3", "4", "5", "8"],
+    },
+    "TV": {
+        "name": "Tuvalu", "name_ur": "\u0679\u0648\u0627\u0644\u0648", "code": "688",
+        "nsn": [5, 6, 7], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Funafuti"], "flag": "\U0001f1f9\U0001f1fb",
+        "mobile": ["7", "9"], "fixed": ["2", "3", "4", "5", "6", "8"],
+    },
+    "NR": {
+        "name": "Nauru", "name_ur": "\u0646\u0627\u0648\u0631\u0648", "code": "674",
+        "nsn": [7], "trunk": "", "intl": "00",
+        "region": "Oceania", "tz": ["Pacific/Nauru"], "flag": "\U0001f1f3\U0001f1f7",
+        "mobile": ["5", "6"], "fixed": ["4", "7", "8"],
+    },
+    "FM": {
+        "name": "Micronesia", "name_ur": "\u0645\u0627\u0626\u06cc\u06a9\u0631\u0648\u0646\u06cc\u0634\u06cc\u0627", "code": "691",
+        "nsn": [7], "trunk": "", "intl": "011",
+        "region": "Oceania", "tz": ["Pacific/Pohnpei"], "flag": "\U0001f1eb\U0001f1f2",
+        "mobile": ["9"], "fixed": ["3", "4", "5", "6", "7", "8"],
+    },
+    "MH": {
+        "name": "Marshall Islands", "name_ur": "\u0645\u0627\u0631\u0634\u0644 \u0622\u0626\u0644\u06cc\u0646\u0688\u0632", "code": "692",
+        "nsn": [7], "trunk": "1", "intl": "011",
+        "region": "Oceania", "tz": ["Pacific/Majuro"], "flag": "\U0001f1f2\U0001f1ed",
+        "mobile": ["4", "5", "6", "7"], "fixed": ["2", "3", "8", "9"],
+    },
+    "PW": {
+        "name": "Palau", "name_ur": "\u067e\u0644\u0627\u0624", "code": "680",
+        "nsn": [7], "trunk": "", "intl": "011",
+        "region": "Oceania", "tz": ["Pacific/Palau"], "flag": "\U0001f1f5\U0001f1fc",
+        "mobile": ["7", "8"], "fixed": ["2", "3", "4", "5", "6", "9"],
+    },
+    "GU": {
+        "name": "Guam", "name_ur": "\u06af\u0648\u0627\u0645", "code": "1",
+        "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Oceania", "tz": ["Pacific/Guam"], "flag": "\U0001f1ec\U0001f1fa",
+        "mobile": [], "fixed": [],
+        "note": "NANP (671): line type cannot be derived.",
+        "area": {"671": "Guam"},
+    },
+    "AS": {
+        "name": "American Samoa", "name_ur": "\u0627\u0645\u0631\u06cc\u06a9\u06cc \u0633\u0627\u0645\u0648\u0622", "code": "1",
+        "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Oceania", "tz": ["Pacific/Pago_Pago"], "flag": "\U0001f1e6\U0001f1f8",
+        "mobile": [], "fixed": [],
+        "note": "NANP (684): line type cannot be derived.",
+        "area": {"684": "American Samoa"},
+    },
+    "MP": {
+        "name": "Northern Mariana Islands", "name_ur": "\u0634\u0645\u0627\u0644\u06cc \u0645\u0627\u0631\u06cc\u0627\u0646\u0627",
+        "code": "1", "nsn": [10], "trunk": "1", "intl": "011",
+        "region": "Oceania", "tz": ["Pacific/Saipan"], "flag": "\U0001f1f2\U0001f1f5",
+        "mobile": [], "fixed": [],
+        "note": "NANP (670): line type cannot be derived.",
+        "area": {"670": "Northern Mariana Islands"},
+    },
+
+    # ---------------------------- Central Asia / Caucasus ---------------
+    "KZ": {
+        "name": "Kazakhstan", "name_ur": "\u0642\u0627\u0632\u0642\u0633\u062a\u0627\u0646", "code": "7",
+        "nsn": [10], "trunk": "8", "intl": "810",
+        "region": "Central Asia", "tz": ["Asia/Almaty"], "flag": "\U0001f1f0\U0001f1ff",
+        "mobile": ["7"], "fixed": ["3", "4", "5", "6", "8"],
+        "area": {"717": "Astana", "727": "Almaty"},
+    },
+    "UZ": {
+        "name": "Uzbekistan", "name_ur": "\u0627\u0632\u0628\u06a9\u0633\u062a\u0627\u0646", "code": "998",
+        "nsn": [9], "trunk": "8", "intl": "810",
+        "region": "Central Asia", "tz": ["Asia/Tashkent"], "flag": "\U0001f1fa\U0001f1ff",
+        "mobile": ["9", "8", "7"], "fixed": ["7", "6", "3", "2"],
+        "area": {"71": "Tashkent", "66": "Samarkand"},
+    },
+    "KG": {
+        "name": "Kyrgyzstan", "name_ur": "\u06a9\u0631\u063a\u0632\u0633\u062a\u0627\u0646", "code": "996",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Central Asia", "tz": ["Asia/Bishkek"], "flag": "\U0001f1f0\U0001f1ec",
+        "mobile": ["5", "7", "2"], "fixed": ["3"],
+        "area": {"312": "Bishkek"},
+    },
+    "TJ": {
+        "name": "Tajikistan", "name_ur": "\u062a\u0627\u062c\u06a9\u0633\u062a\u0627\u0646", "code": "992",
+        "nsn": [9], "trunk": "8", "intl": "810",
+        "region": "Central Asia", "tz": ["Asia/Dushanbe"], "flag": "\U0001f1f9\U0001f1ef",
+        "mobile": ["9", "5", "7"], "fixed": ["3", "4"],
+        "area": {"37": "Dushanbe"},
+    },
+    "TM": {
+        "name": "Turkmenistan", "name_ur": "\u062a\u0631\u06a9\u0645\u0627\u0646\u0633\u062a\u0627\u0646", "code": "993",
+        "nsn": [8], "trunk": "8", "intl": "810",
+        "region": "Central Asia", "tz": ["Asia/Ashgabat"], "flag": "\U0001f1f9\U0001f1f2",
+        "mobile": ["6"], "fixed": ["1", "2", "3", "4", "5"],
+        "area": {"12": "Ashgabat"},
+    },
+    "AZ": {
+        "name": "Azerbaijan", "name_ur": "\u0622\u0630\u0631\u0628\u0627\u0626\u06cc\u062c\u0627\u0646", "code": "994",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Baku"], "flag": "\U0001f1e6\U0001f1ff",
+        "mobile": ["5", "7"], "fixed": ["1", "2"],
+        "area": {"12": "Baku"},
+    },
+    "GE": {
+        "name": "Georgia", "name_ur": "\u062c\u0627\u0631\u062c\u06cc\u0627", "code": "995",
+        "nsn": [9], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Tbilisi"], "flag": "\U0001f1ec\U0001f1ea",
+        "mobile": ["5"], "fixed": ["3", "4"],
+        "area": {"32": "Tbilisi"},
+    },
+    "AM": {
+        "name": "Armenia", "name_ur": "\u0622\u0631\u0645\u06cc\u0646\u06cc\u0627", "code": "374",
+        "nsn": [8], "trunk": "0", "intl": "00",
+        "region": "Western Asia", "tz": ["Asia/Yerevan"], "flag": "\U0001f1e6\U0001f1f2",
+        "mobile": ["7", "9", "4", "5"], "fixed": ["1", "2", "3"],
+        "area": {"10": "Yerevan"},
+    },
+    "MN": {
+        "name": "Mongolia", "name_ur": "\u0645\u0646\u06af\u0648\u0644\u06cc\u0627", "code": "976",
+        "nsn": [8], "trunk": "0", "intl": "001",
+        "region": "Eastern Asia", "tz": ["Asia/Ulaanbaatar"], "flag": "\U0001f1f2\U0001f1f3",
+        "mobile": ["8", "9"], "fixed": ["1", "2", "3", "4", "5", "6", "7"],
+        "area": {"11": "Ulaanbaatar"},
+    },
+}
+
+# ---------------------------------------------------------------------------
+# Carrier / operator prefixes
+# ---------------------------------------------------------------------------
+# Keyed by ISO country code, then by NSN prefix.  Values are
+# (operator, line_type, note).  Only publicly documented allocations are
+# listed; mobile number portability means the current operator may differ
+# from the original allocation, which is stated in the output.
+
+CARRIER_PREFIXES: dict[str, dict[str, tuple]] = {
+    "PK": {
+        "300": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "301": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "302": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "303": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "304": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "305": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "306": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "307": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "308": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "309": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "310": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "311": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "312": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "313": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "314": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "315": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "316": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "317": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "318": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "319": ("Zong (CMPak)", "mobile", "Original allocation"),
+        "320": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "321": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "322": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "323": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "324": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "325": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "326": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "327": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "328": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "329": ("Telenor Pakistan", "mobile", "Original allocation"),
+        "330": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "331": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "332": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "333": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "334": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "335": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "336": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "337": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "338": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "339": ("Ufone (PTCL)", "mobile", "Original allocation"),
+        "340": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "341": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "342": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "343": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "344": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "345": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "346": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "347": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "348": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "349": ("Jazz (Mobilink)", "mobile", "Original allocation"),
+        "355": ("Ufone (PTCL)", "mobile", "Original allocation"),
+    },
+    "IN": {
+        "70": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "71": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "72": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "73": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "74": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "75": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "76": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "77": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "78": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "79": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "80": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "81": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "82": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "83": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "84": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "85": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "86": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "87": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "88": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "89": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "90": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "91": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "92": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "93": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "94": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "95": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "96": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "97": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "98": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "99": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "BD": {
+        "013": ("Grameenphone", "mobile", "Original allocation"),
+        "017": ("Grameenphone", "mobile", "Original allocation"),
+        "014": ("Banglalink", "mobile", "Original allocation"),
+        "019": ("Banglalink", "mobile", "Original allocation"),
+        "015": ("Teletalk", "mobile", "Original allocation"),
+        "016": ("Airtel Bangladesh", "mobile", "Original allocation"),
+        "018": ("Robi Axiata", "mobile", "Original allocation"),
+    },
+    "AE": {
+        "050": ("Etisalat", "mobile", "Original allocation"),
+        "052": ("du", "mobile", "Original allocation"),
+        "054": ("Etisalat", "mobile", "Original allocation"),
+        "055": ("du", "mobile", "Original allocation"),
+        "056": ("Etisalat", "mobile", "Original allocation"),
+        "058": ("du", "mobile", "Original allocation"),
+    },
+    "SA": {
+        "050": ("STC (Al Jawal)", "mobile", "Original allocation"),
+        "053": ("STC (Al Jawal)", "mobile", "Original allocation"),
+        "055": ("STC (Al Jawal)", "mobile", "Original allocation"),
+        "054": ("Mobily", "mobile", "Original allocation"),
+        "056": ("Mobily", "mobile", "Original allocation"),
+        "059": ("Zain Saudi Arabia", "mobile", "Original allocation"),
+        "058": ("Zain Saudi Arabia", "mobile", "Original allocation"),
+        "057": ("Virgin Mobile KSA", "mobile", "MVNO"),
+    },
+    "GB": {
+        "071": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "072": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "073": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "074": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "075": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "076": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "077": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "078": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "079": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "US": {
+        "800": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "833": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "844": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "855": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "866": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "877": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "888": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "900": ("Premium rate (NANP)", "premium", "Shared range"),
+    },
+    "CA": {
+        "800": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "833": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "844": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "855": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "866": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "877": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "888": ("Toll-free (NANP)", "tollfree", "Shared range"),
+        "900": ("Premium rate (NANP)", "premium", "Shared range"),
+    },
+    "NG": {
+        "070": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "080": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "081": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "090": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "091": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "KE": {
+        "070": ("Safaricom", "mobile", "Original allocation"),
+        "071": ("Safaricom", "mobile", "Original allocation"),
+        "072": ("Safaricom", "mobile", "Original allocation"),
+        "074": ("Safaricom", "mobile", "Original allocation"),
+        "075": ("Airtel Kenya", "mobile", "Original allocation"),
+        "076": ("Airtel Kenya", "mobile", "Original allocation"),
+        "078": ("Airtel Kenya", "mobile", "Original allocation"),
+        "079": ("Telkom Kenya", "mobile", "Original allocation"),
+        "077": ("Telkom Kenya", "mobile", "Original allocation"),
+    },
+    "ZA": {
+        "060": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "071": ("Vodacom", "mobile", "Original allocation"),
+        "072": ("Vodacom", "mobile", "Original allocation"),
+        "073": ("MTN", "mobile", "Original allocation"),
+        "074": ("Cell C", "mobile", "Original allocation"),
+        "076": ("Vodacom", "mobile", "Original allocation"),
+        "078": ("MTN", "mobile", "Original allocation"),
+        "079": ("Vodacom", "mobile", "Original allocation"),
+        "081": ("Telkom Mobile", "mobile", "Original allocation"),
+        "082": ("Vodacom", "mobile", "Original allocation"),
+        "083": ("MTN", "mobile", "Original allocation"),
+        "084": ("Cell C", "mobile", "Original allocation"),
+    },
+    "TR": {
+        "050": ("Turkcell", "mobile", "Original allocation"),
+        "053": ("Turkcell", "mobile", "Original allocation"),
+        "054": ("Vodafone Turkey", "mobile", "Original allocation"),
+        "055": ("Vodafone Turkey", "mobile", "Original allocation"),
+        "051": ("T\u00fcrk Telekom", "mobile", "Original allocation"),
+        "052": ("T\u00fcrk Telekom", "mobile", "Original allocation"),
+    },
+    "MY": {
+        "010": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "011": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "012": ("Maxis", "mobile", "Original allocation"),
+        "013": ("Celcom", "mobile", "Original allocation"),
+        "014": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "016": ("DiGi", "mobile", "Original allocation"),
+        "017": ("Maxis", "mobile", "Original allocation"),
+        "018": ("U Mobile", "mobile", "Original allocation"),
+        "019": ("Celcom", "mobile", "Original allocation"),
+    },
+    "ID": {
+        "0811": ("Telkomsel", "mobile", "Original allocation"),
+        "0812": ("Telkomsel", "mobile", "Original allocation"),
+        "0813": ("Telkomsel", "mobile", "Original allocation"),
+        "0821": ("Telkomsel", "mobile", "Original allocation"),
+        "0822": ("Telkomsel", "mobile", "Original allocation"),
+        "0823": ("Telkomsel", "mobile", "Original allocation"),
+        "0851": ("Telkomsel", "mobile", "Original allocation"),
+        "0852": ("Telkomsel", "mobile", "Original allocation"),
+        "0853": ("Telkomsel", "mobile", "Original allocation"),
+        "0814": ("Indosat", "mobile", "Original allocation"),
+        "0815": ("Indosat", "mobile", "Original allocation"),
+        "0816": ("Indosat", "mobile", "Original allocation"),
+        "0855": ("Indosat", "mobile", "Original allocation"),
+        "0856": ("Indosat", "mobile", "Original allocation"),
+        "0857": ("Indosat", "mobile", "Original allocation"),
+        "0858": ("Indosat", "mobile", "Original allocation"),
+        "0817": ("XL Axiata", "mobile", "Original allocation"),
+        "0818": ("XL Axiata", "mobile", "Original allocation"),
+        "0819": ("XL Axiata", "mobile", "Original allocation"),
+        "0859": ("XL Axiata", "mobile", "Original allocation"),
+        "0877": ("XL Axiata", "mobile", "Original allocation"),
+        "0878": ("XL Axiata", "mobile", "Original allocation"),
+        "0831": ("AXIS", "mobile", "Original allocation"),
+        "0832": ("AXIS", "mobile", "Original allocation"),
+        "0833": ("AXIS", "mobile", "Original allocation"),
+        "0838": ("AXIS", "mobile", "Original allocation"),
+        "0895": ("3 (Tri)", "mobile", "Original allocation"),
+        "0896": ("3 (Tri)", "mobile", "Original allocation"),
+        "0897": ("3 (Tri)", "mobile", "Original allocation"),
+        "0898": ("3 (Tri)", "mobile", "Original allocation"),
+        "0899": ("3 (Tri)", "mobile", "Original allocation"),
+    },
+    "PH": {
+        "0905": ("Globe", "mobile", "Original allocation"),
+        "0906": ("Globe", "mobile", "Original allocation"),
+        "0915": ("Globe", "mobile", "Original allocation"),
+        "0916": ("Globe", "mobile", "Original allocation"),
+        "0917": ("Globe", "mobile", "Original allocation"),
+        "0926": ("Globe", "mobile", "Original allocation"),
+        "0927": ("Globe", "mobile", "Original allocation"),
+        "0935": ("Globe", "mobile", "Original allocation"),
+        "0936": ("Globe", "mobile", "Original allocation"),
+        "0937": ("Globe", "mobile", "Original allocation"),
+        "0907": ("Smart", "mobile", "Original allocation"),
+        "0908": ("Smart", "mobile", "Original allocation"),
+        "0909": ("Smart", "mobile", "Original allocation"),
+        "0910": ("Smart", "mobile", "Original allocation"),
+        "0918": ("Smart", "mobile", "Original allocation"),
+        "0919": ("Smart", "mobile", "Original allocation"),
+        "0920": ("Smart", "mobile", "Original allocation"),
+        "0921": ("Smart", "mobile", "Original allocation"),
+        "0928": ("Smart", "mobile", "Original allocation"),
+        "0929": ("Smart", "mobile", "Original allocation"),
+        "0930": ("Smart", "mobile", "Original allocation"),
+        "0938": ("Smart", "mobile", "Original allocation"),
+        "0939": ("Smart", "mobile", "Original allocation"),
+        "0947": ("Smart", "mobile", "Original allocation"),
+        "0998": ("Smart", "mobile", "Original allocation"),
+        "0999": ("Smart", "mobile", "Original allocation"),
+    },
+    "EG": {
+        "010": ("Vodafone Egypt", "mobile", "Original allocation"),
+        "011": ("Etisalat Misr", "mobile", "Original allocation"),
+        "012": ("Orange Egypt", "mobile", "Original allocation"),
+        "015": ("WE (Telecom Egypt)", "mobile", "Original allocation"),
+    },
+    "MA": {
+        "060": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "061": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "062": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "063": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "064": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "065": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "066": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "067": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "068": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "069": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "070": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "071": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "072": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "073": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "074": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "075": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "076": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "077": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "078": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "079": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "AU": {
+        "04": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "NZ": {
+        "02": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "SG": {
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "CN": {
+        "130": ("China Unicom", "mobile", "Original allocation"),
+        "131": ("China Unicom", "mobile", "Original allocation"),
+        "132": ("China Unicom", "mobile", "Original allocation"),
+        "155": ("China Unicom", "mobile", "Original allocation"),
+        "156": ("China Unicom", "mobile", "Original allocation"),
+        "185": ("China Unicom", "mobile", "Original allocation"),
+        "186": ("China Unicom", "mobile", "Original allocation"),
+        "133": ("China Telecom", "mobile", "Original allocation"),
+        "153": ("China Telecom", "mobile", "Original allocation"),
+        "173": ("China Telecom", "mobile", "Original allocation"),
+        "177": ("China Telecom", "mobile", "Original allocation"),
+        "180": ("China Telecom", "mobile", "Original allocation"),
+        "181": ("China Telecom", "mobile", "Original allocation"),
+        "189": ("China Telecom", "mobile", "Original allocation"),
+        "134": ("China Mobile", "mobile", "Original allocation"),
+        "135": ("China Mobile", "mobile", "Original allocation"),
+        "136": ("China Mobile", "mobile", "Original allocation"),
+        "137": ("China Mobile", "mobile", "Original allocation"),
+        "138": ("China Mobile", "mobile", "Original allocation"),
+        "139": ("China Mobile", "mobile", "Original allocation"),
+        "150": ("China Mobile", "mobile", "Original allocation"),
+        "151": ("China Mobile", "mobile", "Original allocation"),
+        "152": ("China Mobile", "mobile", "Original allocation"),
+        "157": ("China Mobile", "mobile", "Original allocation"),
+        "158": ("China Mobile", "mobile", "Original allocation"),
+        "159": ("China Mobile", "mobile", "Original allocation"),
+        "182": ("China Mobile", "mobile", "Original allocation"),
+        "183": ("China Mobile", "mobile", "Original allocation"),
+        "184": ("China Mobile", "mobile", "Original allocation"),
+        "187": ("China Mobile", "mobile", "Original allocation"),
+        "188": ("China Mobile", "mobile", "Original allocation"),
+    },
+    "JP": {
+        "070": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "080": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "090": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "KR": {
+        "010": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "BR": {
+        "11": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "RU": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "UA": {
+        "050": ("Vodafone Ukraine", "mobile", "Original allocation"),
+        "066": ("Vodafone Ukraine", "mobile", "Original allocation"),
+        "095": ("Vodafone Ukraine", "mobile", "Original allocation"),
+        "067": ("Kyivstar", "mobile", "Original allocation"),
+        "068": ("Kyivstar", "mobile", "Original allocation"),
+        "096": ("Kyivstar", "mobile", "Original allocation"),
+        "097": ("Kyivstar", "mobile", "Original allocation"),
+        "098": ("Kyivstar", "mobile", "Original allocation"),
+        "063": ("lifecell", "mobile", "Original allocation"),
+        "073": ("lifecell", "mobile", "Original allocation"),
+        "093": ("lifecell", "mobile", "Original allocation"),
+    },
+    "IR": {
+        "091": ("MCI (Hamrah-e Aval)", "mobile", "Original allocation"),
+        "099": ("MCI (Hamrah-e Aval)", "mobile", "Original allocation"),
+        "090": ("Irancell", "mobile", "Original allocation"),
+        "093": ("Irancell", "mobile", "Original allocation"),
+        "092": ("Rightel", "mobile", "Original allocation"),
+        "094": ("Shatel Mobile", "mobile", "Original allocation"),
+    },
+    "IQ": {
+        "077": ("Korek", "mobile", "Original allocation"),
+        "075": ("Korek", "mobile", "Original allocation"),
+        "078": ("Zain Iraq", "mobile", "Original allocation"),
+        "079": ("Zain Iraq", "mobile", "Original allocation"),
+        "073": ("Asiacell", "mobile", "Original allocation"),
+        "074": ("Asiacell", "mobile", "Original allocation"),
+    },
+    "AF": {
+        "070": ("Roshan", "mobile", "Original allocation"),
+        "079": ("Roshan", "mobile", "Original allocation"),
+        "072": ("Roshan", "mobile", "Original allocation"),
+        "077": ("MTN Afghanistan", "mobile", "Original allocation"),
+        "076": ("MTN Afghanistan", "mobile", "Original allocation"),
+        "078": ("Etisalat Afghanistan", "mobile", "Original allocation"),
+        "073": ("Afghan Wireless", "mobile", "Original allocation"),
+        "074": ("Afghan Wireless", "mobile", "Original allocation"),
+        "075": ("Afghan Telecom", "mobile", "Original allocation"),
+    },
+    "LK": {
+        "071": ("Mobitel", "mobile", "Original allocation"),
+        "070": ("Mobitel", "mobile", "Original allocation"),
+        "077": ("Dialog", "mobile", "Original allocation"),
+        "076": ("Dialog", "mobile", "Original allocation"),
+        "075": ("Airtel Lanka", "mobile", "Original allocation"),
+        "072": ("Hutch", "mobile", "Original allocation"),
+        "078": ("Hutch", "mobile", "Original allocation"),
+    },
+    "NP": {
+        "984": ("Nepal Telecom", "mobile", "Original allocation"),
+        "985": ("Nepal Telecom", "mobile", "Original allocation"),
+        "986": ("Nepal Telecom", "mobile", "Original allocation"),
+        "980": ("Ncell", "mobile", "Original allocation"),
+        "981": ("Ncell", "mobile", "Original allocation"),
+        "982": ("Ncell", "mobile", "Original allocation"),
+        "961": ("Smart Cell", "mobile", "Original allocation"),
+        "988": ("Smart Cell", "mobile", "Original allocation"),
+    },
+    "QA": {
+        "33": ("Ooredoo Qatar", "mobile", "Original allocation"),
+        "55": ("Ooredoo Qatar", "mobile", "Original allocation"),
+        "66": ("Ooredoo Qatar", "mobile", "Original allocation"),
+        "77": ("Vodafone Qatar", "mobile", "Original allocation"),
+        "30": ("Vodafone Qatar", "mobile", "Original allocation"),
+        "50": ("Vodafone Qatar", "mobile", "Original allocation"),
+    },
+    "KW": {
+        "5": ("Zain Kuwait", "mobile", "Original allocation"),
+        "6": ("Ooredoo Kuwait", "mobile", "Original allocation"),
+        "9": ("STC Kuwait", "mobile", "Original allocation"),
+    },
+    "BH": {
+        "3": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "OM": {
+        "7": ("Omantel", "mobile", "Original allocation"),
+        "9": ("Ooredoo Oman", "mobile", "Original allocation"),
+    },
+    "JO": {
+        "77": ("Orange Jordan", "mobile", "Original allocation"),
+        "78": ("Umniah", "mobile", "Original allocation"),
+        "79": ("Zain Jordan", "mobile", "Original allocation"),
+    },
+    "LB": {
+        "3": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "70": ("Touch", "mobile", "Original allocation"),
+        "71": ("Touch", "mobile", "Original allocation"),
+        "76": ("Touch", "mobile", "Original allocation"),
+        "78": ("Alfa", "mobile", "Original allocation"),
+        "79": ("Alfa", "mobile", "Original allocation"),
+        "81": ("Alfa", "mobile", "Original allocation"),
+    },
+    "SY": {
+        "9": ("Syriatel / MTN Syria", "mobile", "Ported - operator may differ"),
+    },
+    "YE": {
+        "71": ("MTN Yemen", "mobile", "Original allocation"),
+        "73": ("MTN Yemen", "mobile", "Original allocation"),
+        "77": ("Yemen Mobile", "mobile", "Original allocation"),
+        "78": ("Yemen Mobile", "mobile", "Original allocation"),
+    },
+    "PS": {
+        "56": ("Jawwal", "mobile", "Original allocation"),
+        "59": ("Jawwal", "mobile", "Original allocation"),
+    },
+    "IL": {
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "DE": {
+        "015": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "016": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "017": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "FR": {
+        "06": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "07": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "ES": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "IT": {
+        "3": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "NL": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "BE": {
+        "4": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "CH": {
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "AT": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "SE": {
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "NO": {
+        "4": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "DK": {
+        "2": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "3": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "4": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "FI": {
+        "4": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "IE": {
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "PT": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "PL": {
+        "45": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "50": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "51": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "53": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "57": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "60": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "66": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "69": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "72": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "73": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "78": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "79": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "88": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "RO": {
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "GR": {
+        "69": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "CZ": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "HU": {
+        "20": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "30": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "31": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "50": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "70": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "BG": {
+        "87": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "88": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "89": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "98": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "99": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "RS": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "HR": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "MX": {
+        "55": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "AR": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "CL": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "CO": {
+        "3": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "PE": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "VE": {
+        "4": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "EC": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "UY": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "PY": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "BO": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "CU": {
+        "5": ("Cubacel", "mobile", "Original allocation"),
+    },
+    "GT": {
+        "3": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "4": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "CR": {
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "PA": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "HN": {
+        "3": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "SV": {
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "NI": {
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "DO": {
+        "809": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "829": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "849": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "JM": {
+        "876": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "658": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "TT": {
+        "868": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "PR": {
+        "787": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "939": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "GH": {
+        "020": ("Vodafone Ghana", "mobile", "Original allocation"),
+        "050": ("Vodafone Ghana", "mobile", "Original allocation"),
+        "024": ("MTN Ghana", "mobile", "Original allocation"),
+        "054": ("MTN Ghana", "mobile", "Original allocation"),
+        "055": ("MTN Ghana", "mobile", "Original allocation"),
+        "059": ("MTN Ghana", "mobile", "Original allocation"),
+        "026": ("AirtelTigo", "mobile", "Original allocation"),
+        "056": ("AirtelTigo", "mobile", "Original allocation"),
+        "027": ("AirtelTigo", "mobile", "Original allocation"),
+        "057": ("AirtelTigo", "mobile", "Original allocation"),
+    },
+    "TZ": {
+        "071": ("Vodacom Tanzania", "mobile", "Original allocation"),
+        "075": ("Vodacom Tanzania", "mobile", "Original allocation"),
+        "076": ("Vodacom Tanzania", "mobile", "Original allocation"),
+        "078": ("Airtel Tanzania", "mobile", "Original allocation"),
+        "068": ("Airtel Tanzania", "mobile", "Original allocation"),
+        "069": ("Airtel Tanzania", "mobile", "Original allocation"),
+        "065": ("Tigo Tanzania", "mobile", "Original allocation"),
+        "067": ("Tigo Tanzania", "mobile", "Original allocation"),
+        "062": ("Halotel", "mobile", "Original allocation"),
+        "077": ("Zantel", "mobile", "Original allocation"),
+    },
+    "UG": {
+        "070": ("Airtel Uganda", "mobile", "Original allocation"),
+        "075": ("Airtel Uganda", "mobile", "Original allocation"),
+        "077": ("MTN Uganda", "mobile", "Original allocation"),
+        "078": ("MTN Uganda", "mobile", "Original allocation"),
+        "076": ("MTN Uganda", "mobile", "Original allocation"),
+        "074": ("Africell Uganda", "mobile", "Original allocation"),
+        "079": ("Africell Uganda", "mobile", "Original allocation"),
+    },
+    "ET": {
+        "091": ("Ethio Telecom", "mobile", "Original allocation"),
+        "092": ("Ethio Telecom", "mobile", "Original allocation"),
+        "093": ("Ethio Telecom", "mobile", "Original allocation"),
+        "094": ("Ethio Telecom", "mobile", "Original allocation"),
+        "095": ("Ethio Telecom", "mobile", "Original allocation"),
+        "096": ("Ethio Telecom", "mobile", "Original allocation"),
+        "097": ("Ethio Telecom", "mobile", "Original allocation"),
+        "098": ("Ethio Telecom", "mobile", "Original allocation"),
+        "099": ("Ethio Telecom", "mobile", "Original allocation"),
+    },
+    "ZW": {
+        "071": ("NetOne", "mobile", "Original allocation"),
+        "077": ("Econet Wireless", "mobile", "Original allocation"),
+        "078": ("Econet Wireless", "mobile", "Original allocation"),
+        "073": ("Telecel Zimbabwe", "mobile", "Original allocation"),
+    },
+    "ZM": {
+        "095": ("Zamtel", "mobile", "Original allocation"),
+        "096": ("MTN Zambia", "mobile", "Original allocation"),
+        "097": ("Airtel Zambia", "mobile", "Original allocation"),
+        "076": ("MTN Zambia", "mobile", "Original allocation"),
+        "077": ("Airtel Zambia", "mobile", "Original allocation"),
+    },
+    "MZ": {
+        "82": ("Vodacom Mozambique", "mobile", "Original allocation"),
+        "84": ("Vodacom Mozambique", "mobile", "Original allocation"),
+        "86": ("Movitel", "mobile", "Original allocation"),
+        "87": ("Movitel", "mobile", "Original allocation"),
+        "83": ("Tmcel", "mobile", "Original allocation"),
+    },
+    "AO": {
+        "923": ("Movicel", "mobile", "Original allocation"),
+        "924": ("Movicel", "mobile", "Original allocation"),
+        "925": ("Unitel", "mobile", "Original allocation"),
+        "926": ("Unitel", "mobile", "Original allocation"),
+        "927": ("Unitel", "mobile", "Original allocation"),
+        "928": ("Unitel", "mobile", "Original allocation"),
+        "929": ("Unitel", "mobile", "Original allocation"),
+    },
+    "SN": {
+        "77": ("Orange Senegal", "mobile", "Original allocation"),
+        "78": ("Orange Senegal", "mobile", "Original allocation"),
+        "76": ("Free Senegal", "mobile", "Original allocation"),
+        "70": ("Expresso Senegal", "mobile", "Original allocation"),
+        "75": ("Promobile", "mobile", "Original allocation"),
+    },
+    "CI": {
+        "07": ("Orange C\u00f4te d'Ivoire", "mobile", "Original allocation"),
+        "05": ("MTN C\u00f4te d'Ivoire", "mobile", "Original allocation"),
+        "01": ("Moov Africa", "mobile", "Original allocation"),
+    },
+    "CM": {
+        "67": ("MTN Cameroon", "mobile", "Original allocation"),
+        "65": ("Orange Cameroun", "mobile", "Original allocation"),
+        "69": ("Orange Cameroun", "mobile", "Original allocation"),
+        "66": ("Nexttel", "mobile", "Original allocation"),
+    },
+    "SO": {
+        "61": ("Hormuud", "mobile", "Original allocation"),
+        "62": ("Somtel", "mobile", "Original allocation"),
+        "63": ("Telesom", "mobile", "Original allocation"),
+        "68": ("Golis", "mobile", "Original allocation"),
+        "90": ("Somnet", "mobile", "Original allocation"),
+    },
+    "SS": {
+        "92": ("MTN South Sudan", "mobile", "Original allocation"),
+        "91": ("Zain South Sudan", "mobile", "Original allocation"),
+        "95": ("Vivacell", "mobile", "Original allocation"),
+    },
+    "RW": {
+        "078": ("MTN Rwanda", "mobile", "Original allocation"),
+        "079": ("MTN Rwanda", "mobile", "Original allocation"),
+        "072": ("Airtel Rwanda", "mobile", "Original allocation"),
+        "073": ("Airtel Rwanda", "mobile", "Original allocation"),
+    },
+    "MU": {
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "BW": {
+        "71": ("Mascom", "mobile", "Original allocation"),
+        "72": ("Mascom", "mobile", "Original allocation"),
+        "73": ("BTC Mobile", "mobile", "Original allocation"),
+        "74": ("Orange Botswana", "mobile", "Original allocation"),
+        "75": ("Orange Botswana", "mobile", "Original allocation"),
+        "76": ("BTC Mobile", "mobile", "Original allocation"),
+    },
+    "NA": {
+        "81": ("MTC Namibia", "mobile", "Original allocation"),
+        "85": ("MTC Namibia", "mobile", "Original allocation"),
+        "82": ("Telecom Namibia", "mobile", "Original allocation"),
+        "83": ("TN Mobile", "mobile", "Original allocation"),
+    },
+    "MW": {
+        "88": ("TNM", "mobile", "Original allocation"),
+        "99": ("Airtel Malawi", "mobile", "Original allocation"),
+        "98": ("Airtel Malawi", "mobile", "Original allocation"),
+        "89": ("TNM", "mobile", "Original allocation"),
+    },
+    "MG": {
+        "32": ("Orange Madagascar", "mobile", "Original allocation"),
+        "33": ("Airtel Madagascar", "mobile", "Original allocation"),
+        "34": ("Telma", "mobile", "Original allocation"),
+        "38": ("Telma", "mobile", "Original allocation"),
+    },
+    "ML": {
+        "6": ("Orange Mali", "mobile", "Original allocation"),
+        "7": ("Orange Mali", "mobile", "Original allocation"),
+        "8": ("Moov Africa Mali", "mobile", "Original allocation"),
+        "9": ("Moov Africa Mali", "mobile", "Original allocation"),
+    },
+    "BF": {
+        "5": ("Orange Burkina Faso", "mobile", "Original allocation"),
+        "6": ("Orange Burkina Faso", "mobile", "Original allocation"),
+        "7": ("Moov Africa Burkina", "mobile", "Original allocation"),
+    },
+    "NE": {
+        "8": ("Airtel Niger", "mobile", "Original allocation"),
+        "9": ("Orange Niger", "mobile", "Original allocation"),
+    },
+    "TD": {
+        "6": ("Airtel Chad", "mobile", "Original allocation"),
+        "9": ("Tigo Chad", "mobile", "Original allocation"),
+    },
+    "GN": {
+        "6": ("Orange Guin\u00e9e", "mobile", "Original allocation"),
+        "62": ("Orange Guin\u00e9e", "mobile", "Original allocation"),
+        "66": ("MTN Guin\u00e9e", "mobile", "Original allocation"),
+        "65": ("Cellcom Guin\u00e9e", "mobile", "Original allocation"),
+    },
+    "SL": {
+        "7": ("Orange Sierra Leone", "mobile", "Original allocation"),
+        "8": ("Africell", "mobile", "Original allocation"),
+        "9": ("Sierratel", "mobile", "Original allocation"),
+    },
+    "LR": {
+        "7": ("Orange Liberia", "mobile", "Original allocation"),
+        "8": ("Lonestar Cell", "mobile", "Original allocation"),
+        "9": ("Novafone", "mobile", "Original allocation"),
+    },
+    "TG": {
+        "7": ("Togocom", "mobile", "Original allocation"),
+        "9": ("Moov Africa Togo", "mobile", "Original allocation"),
+    },
+    "BJ": {
+        "6": ("MTN Benin", "mobile", "Original allocation"),
+        "9": ("Moov Africa Benin", "mobile", "Original allocation"),
+    },
+    "GM": {
+        "2": ("Africell Gambia", "mobile", "Original allocation"),
+        "3": ("Africell Gambia", "mobile", "Original allocation"),
+        "5": ("Gamcel", "mobile", "Original allocation"),
+        "6": ("Comium", "mobile", "Original allocation"),
+        "7": ("QCell", "mobile", "Original allocation"),
+        "9": ("Africell Gambia", "mobile", "Original allocation"),
+    },
+    "MR": {
+        "2": ("Mauritel", "mobile", "Original allocation"),
+        "3": ("Mattel", "mobile", "Original allocation"),
+        "4": ("Chinguitel", "mobile", "Original allocation"),
+    },
+    "GA": {
+        "6": ("Airtel Gabon", "mobile", "Original allocation"),
+        "7": ("Moov Africa Gabon", "mobile", "Original allocation"),
+    },
+    "CG": {
+        "0": ("MTN Congo", "mobile", "Original allocation"),
+        "5": ("Airtel Congo", "mobile", "Original allocation"),
+        "6": ("Airtel Congo", "mobile", "Original allocation"),
+    },
+    "CD": {
+        "8": ("Vodacom Congo", "mobile", "Original allocation"),
+        "9": ("Airtel DRC", "mobile", "Original allocation"),
+    },
+    "DJ": {
+        "77": ("Djibouti Telecom", "mobile", "Original allocation"),
+        "78": ("Djibouti Telecom", "mobile", "Original allocation"),
+    },
+    "ER": {
+        "7": ("Eritel", "mobile", "Original allocation"),
+    },
+    "BI": {
+        "6": ("Econet Leo", "mobile", "Original allocation"),
+        "7": ("Lumitel", "mobile", "Original allocation"),
+    },
+    "LS": {
+        "5": ("Vodacom Lesotho", "mobile", "Original allocation"),
+        "6": ("Econet Telecom Lesotho", "mobile", "Original allocation"),
+    },
+    "SZ": {
+        "7": ("MTN Eswatini", "mobile", "Original allocation"),
+        "6": ("Eswatini Mobile", "mobile", "Original allocation"),
+    },
+    "SC": {
+        "2": ("Airtel Seychelles", "mobile", "Original allocation"),
+        "4": ("Cable & Wireless", "mobile", "Original allocation"),
+    },
+    "CV": {
+        "5": ("CVMovel", "mobile", "Original allocation"),
+        "9": ("Unitel T+", "mobile", "Original allocation"),
+    },
+    "ST": {
+        "9": ("Unitel STP", "mobile", "Original allocation"),
+    },
+    "GQ": {
+        "2": ("Orange GQ", "mobile", "Original allocation"),
+        "5": ("Muni", "mobile", "Original allocation"),
+    },
+    "KM": {
+        "3": ("Telma Comores", "mobile", "Original allocation"),
+        "4": ("Comoros Telecom", "mobile", "Original allocation"),
+    },
+    "GW": {
+        "9": ("Orange Bissau", "mobile", "Original allocation"),
+        "6": ("MTN Guinea-Bissau", "mobile", "Original allocation"),
+    },
+    "TH": {
+        "06": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "08": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "09": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "VN": {
+        "03": ("Viettel", "mobile", "Original allocation"),
+        "05": ("Vietnamobile", "mobile", "Original allocation"),
+        "07": ("Mobifone", "mobile", "Original allocation"),
+        "08": ("Vinaphone", "mobile", "Original allocation"),
+        "09": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "KH": {
+        "1": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "6": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "LA": {
+        "20": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "MM": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "BN": {
+        "7": ("DSTCom", "mobile", "Original allocation"),
+        "8": ("DSTCom", "mobile", "Original allocation"),
+    },
+    "TL": {
+        "7": ("Telkomcel", "mobile", "Original allocation"),
+    },
+    "KZ": {
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "UZ": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "KG": {
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "2": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "TJ": {
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "TM": {
+        "6": ("Altyn Asyr", "mobile", "Original allocation"),
+    },
+    "AZ": {
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "GE": {
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "AM": {
+        "7": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "4": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "5": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "MN": {
+        "8": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+        "9": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "FJ": {
+        "7": ("Vodafone Fiji", "mobile", "Original allocation"),
+        "9": ("Digicel Fiji", "mobile", "Original allocation"),
+    },
+    "PG": {
+        "7": ("Digicel PNG", "mobile", "Original allocation"),
+    },
+    "NC": {
+        "7": ("OPT", "mobile", "Original allocation"),
+        "8": ("OPT", "mobile", "Original allocation"),
+        "9": ("OPT", "mobile", "Original allocation"),
+    },
+    "PF": {
+        "8": ("Vodafone Polyn\u00e9sie", "mobile", "Original allocation"),
+        "7": ("Vini", "mobile", "Original allocation"),
+    },
+    "WS": {
+        "7": ("Digicel Samoa", "mobile", "Original allocation"),
+    },
+    "TO": {
+        "7": ("Digicel Tonga", "mobile", "Original allocation"),
+        "8": ("Digicel Tonga", "mobile", "Original allocation"),
+    },
+    "VU": {
+        "5": ("Digicel Vanuatu", "mobile", "Original allocation"),
+        "7": ("Vodafone Vanuatu", "mobile", "Original allocation"),
+    },
+    "SB": {
+        "7": ("Our Telekom", "mobile", "Original allocation"),
+        "8": ("bmobile", "mobile", "Original allocation"),
+    },
+    "KI": {
+        "6": ("Vodafone Kiribati", "mobile", "Original allocation"),
+        "7": ("Vodafone Kiribati", "mobile", "Original allocation"),
+        "9": ("Ocean Link", "mobile", "Original allocation"),
+    },
+    "TV": {
+        "7": ("Tuvalu Telecom", "mobile", "Original allocation"),
+        "9": ("Tuvalu Telecom", "mobile", "Original allocation"),
+    },
+    "NR": {
+        "5": ("Digicel Nauru", "mobile", "Original allocation"),
+        "6": ("Digicel Nauru", "mobile", "Original allocation"),
+    },
+    "FM": {
+        "9": ("FSM Telecom", "mobile", "Original allocation"),
+    },
+    "MH": {
+        "4": ("NTA", "mobile", "Original allocation"),
+        "5": ("NTA", "mobile", "Original allocation"),
+        "6": ("NTA", "mobile", "Original allocation"),
+        "7": ("NTA", "mobile", "Original allocation"),
+    },
+    "PW": {
+        "7": ("PNCC", "mobile", "Original allocation"),
+        "8": ("PNCC", "mobile", "Original allocation"),
+    },
+    "GU": {
+        "671": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "AS": {
+        "684": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+    "MP": {
+        "670": ("Various (mobile)", "mobile", "Ported - operator may differ"),
+    },
+}
+
+# ---------------------------------------------------------------------------
+# Line-type labels
+# ---------------------------------------------------------------------------
+
+LINE_TYPES = {
+    "mobile": "Mobile",
+    "fixed": "Fixed line (landline)",
+    "voip": "VoIP / fixed-wireless",
+    "tollfree": "Toll-free",
+    "premium": "Premium rate",
+    "shared_cost": "Shared cost",
+    "unknown": "Unknown / not derivable",
+}
+
+# ---------------------------------------------------------------------------
+# Lookup helpers
+# ---------------------------------------------------------------------------
+
+# Longest calling code first so that "1" does not shadow "1868" style codes.
+_CALLING_CODE_INDEX: list[tuple[str, str]] | None = None
+
+
+def _calling_code_index() -> list[tuple[str, str]]:
+    global _CALLING_CODE_INDEX
+    if _CALLING_CODE_INDEX is None:
+        pairs = [(info["code"], iso) for iso, info in COUNTRIES.items()]
+        pairs.sort(key=lambda p: len(p[0]), reverse=True)
+        _CALLING_CODE_INDEX = pairs
+    return _CALLING_CODE_INDEX
+
+
+def country_by_iso(iso: str) -> dict | None:
+    """Return the numbering-plan record for an ISO 3166-1 alpha-2 code."""
+    if not iso:
+        return None
+    return COUNTRIES.get(str(iso).upper())
+
+
+def country_by_calling_code(code: str) -> list[tuple[str, dict]]:
+    """Return every country sharing a calling code, longest match first.
+
+    A calling code is not unique (``+1`` covers 25 territories, ``+7`` covers
+    Russia and Kazakhstan), so a list is returned rather than a single value.
+    """
+    code = str(code or "").lstrip("+")
+    out = []
+    for iso, info in COUNTRIES.items():
+        if info["code"] == code:
+            out.append((iso, info))
+    out.sort(key=lambda pair: pair[0])
+    return out
+
+
+def _best_shared_match(candidates: list, nsn: str) -> str:
+    """Pick the territory whose area table matches ``nsn``, longest first.
+
+    A shared calling code such as ``+1`` (NANP) or ``+7`` (RU/KZ) cannot be
+    resolved from the calling code alone, so the leading digits are matched
+    against each candidate's published area-code table.  When nothing
+    matches, the first candidate is returned and the caller reports the
+    ambiguity to the user.
+    """
+    nsn = str(nsn or "")
+    for length in range(min(len(nsn), 4), 0, -1):
+        prefix = nsn[:length]
+        for iso in candidates:
+            table = (COUNTRIES.get(iso) or {}).get("area") or {}
+            if prefix in table:
+                return iso
+    return candidates[0]
+
+
+def split_calling_code(digits: str) -> tuple[str, str, str] | None:
+    """Split an E.164 digit string into ``(iso, calling_code, nsn)``.
+
+    Returns ``None`` when no known calling code matches.  When several
+    countries share a calling code (``+1`` covers 25 NANP territories, ``+7``
+    covers Russia and Kazakhstan) the leading digits are matched against the
+    candidates' area tables; the caller can use
+    :func:`country_by_calling_code` for the full list.
+    """
+    digits = str(digits or "").lstrip("+")
+    if not digits.isdigit():
+        return None
+    for code, iso in _calling_code_index():
+        if not (digits.startswith(code) and len(digits) > len(code)):
+            continue
+        nsn = digits[len(code):]
+        candidates = [c_iso for c_iso, _ in country_by_calling_code(code)]
+        if len(candidates) > 1:
+            iso = _best_shared_match(candidates, nsn)
+        return iso, code, nsn
+    return None
+
+
+def carrier_for(iso: str, nsn: str) -> tuple | None:
+    """Return ``(operator, line_type, note)`` for an NSN, longest prefix first."""
+    table = CARRIER_PREFIXES.get(str(iso or "").upper())
+    if not table:
+        return None
+    nsn = str(nsn or "")
+    for length in range(min(len(nsn), 4), 0, -1):
+        hit = table.get(nsn[:length])
+        if hit:
+            return hit
+    return None
+
+
+def area_for(iso: str, nsn: str) -> tuple[str, str] | None:
+    """Return ``(area_code, area_name)`` for a fixed-line NSN, longest first."""
+    info = country_by_iso(iso)
+    if not info:
+        return None
+    table = info.get("area") or {}
+    if not table:
+        return None
+    nsn = str(nsn or "")
+    for length in range(min(len(nsn), 4), 0, -1):
+        prefix = nsn[:length]
+        if prefix in table:
+            return prefix, table[prefix]
+    return None
+
+
+def all_countries() -> list[tuple[str, dict]]:
+    """Every country record, sorted by English name."""
+    return sorted(COUNTRIES.items(), key=lambda pair: pair[1]["name"])
+
+
+def country_count() -> int:
+    return len(COUNTRIES)
+
+
+def carrier_country_count() -> int:
+    return len(CARRIER_PREFIXES)
