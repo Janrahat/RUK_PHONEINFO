@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+"""RUK_PHONEINFO launcher.
+
+Keeps the package importable no matter where the script is invoked from, so
+``python3 app.py`` works from any working directory on Termux.
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from ruk_phoneinfo.cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(main())
