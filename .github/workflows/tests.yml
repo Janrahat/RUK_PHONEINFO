@@ -1,0 +1,63 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    env:
+      NO_COLOR: "1"
+      RUK_ACCEPT_TERMS: "1"
+      PYTHONIOENCODING: "utf-8"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Syntax check
+        run: python -m compileall -q ruk_phoneinfo app.py tests
+
+      - name: Unit tests (offline)
+        run: python -m unittest tests.test_units -v
+
+      - name: Smoke tests (CLI + packaging)
+        run: python -m unittest tests.test_smoke -v
+
+      - name: Verify the CLI runs
+        run: |
+          python app.py version
+          python app.py --help
+          python app.py info +923001234567 --json
+
+      - name: Verify shell scripts parse
+        run: |
+          bash -n install.sh
+          bash -n uninstall.sh
+          bash -n run_tests.sh
+
+      - name: Verify no network imports
+        run: |
+          if grep -rnE '^\s*(import|from)\s+(socket|urllib|requests|http\.client)' ruk_phoneinfo/; then
+            echo "::error::The package must stay offline - networking import found"
+            exit 1
+          fi
+          echo "OK: no networking imports"
